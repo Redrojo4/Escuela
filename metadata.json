@@ -1,5 +1,5 @@
 {
-  "name": "Calculadora de Papá",
-  "description": "A web-based version of the 'Dad's Calculator' for teachers, designed to compute class attendance, individual student grades, and overall group averages with a clean and modern user interface.",
+  "name": "Calculadora Escolar",
+  "description": "A web-based version of the 'School Calculator' for teachers, designed to compute class attendance, individual student grades, and overall group averages with a clean and modern user interface.",
   "requestFramePermissions": []
 }

@@ -1,6 +1,5 @@
-
-import React, { useState, useMemo } from 'react';
-import { TabOption, AttendanceResult, GroupAverageResult } from './types';
+import React, { useState } from 'react';
+import { TabOption, AttendanceResult, GroupAverageResult, Criterion, Student } from './types';
 import { Card } from './components/Card';
 import { Input } from './components/Input';
 import { Tab } from './components/Tab';
@@ -9,11 +8,12 @@ import { Tab } from './components/Tab';
 const AttendanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg>;
 const StudentIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>;
 const GroupIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zm-1.5 5.5a3 3 0 00-3 0V13a1 1 0 00-1 1v1a1 1 0 001 1h3a1 1 0 001-1v-1a1 1 0 00-1-1v-.5zM15.5 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-3 5.5a3 3 0 013-3h1a3 3 0 013 3v.5a1 1 0 01-1 1v1a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a1 1 0 01-1-1V11.5z" /></svg>;
+const RemoveIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clipRule="evenodd" /></svg>;
 
-const ResultDisplay: React.FC<{ title: string; value: string; unit: string }> = ({ title, value, unit }) => (
+const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valueClassName?: string }> = ({ title, value, unit, valueClassName = 'text-sky-400' }) => (
     <div className="flex flex-col items-center justify-center p-4 bg-slate-700 rounded-lg text-center">
         <span className="text-sm text-slate-400">{title}</span>
-        <span className="text-2xl font-bold text-sky-400">
+        <span className={`text-2xl font-bold ${valueClassName}`}>
             {value}<span className="text-lg ml-1">{unit}</span>
         </span>
     </div>
@@ -83,38 +83,36 @@ const AttendanceCalculator: React.FC = () => {
 };
 
 const StudentAverageCalculator: React.FC = () => {
-    const [numCriteria, setNumCriteria] = useState('1');
-    const [criteria, setCriteria] = useState<string[]>(['']);
+    const [criteria, setCriteria] = useState<Criterion[]>([{ id: crypto.randomUUID(), name: '', score: '' }]);
     const [result, setResult] = useState<number | null>(null);
     const [error, setError] = useState<string>('');
 
-    React.useEffect(() => {
-        const count = parseInt(numCriteria) || 0;
-        if (count > 0 && count <= 20) {
-             setCriteria(c => {
-                const newCriteria = [...c];
-                while (newCriteria.length < count) newCriteria.push('');
-                return newCriteria.slice(0, count);
-             });
-        }
-    }, [numCriteria]);
+    const handleCriteriaChange = (id: string, field: 'name' | 'score', value: string) => {
+        setCriteria(criteria.map(c => c.id === id ? { ...c, [field]: value } : c));
+    };
     
-    const handleCriteriaChange = (index: number, value: string) => {
-        const newCriteria = [...criteria];
-        newCriteria[index] = value;
-        setCriteria(newCriteria);
+    const addCriterion = () => {
+        if (criteria.length < 20) {
+            setCriteria([...criteria, { id: crypto.randomUUID(), name: '', score: '' }]);
+        }
+    };
+
+    const removeCriterion = (id: string) => {
+        if (criteria.length > 1) {
+            setCriteria(criteria.filter(c => c.id !== id));
+        }
     };
 
     const handleCalculate = () => {
-        const scores = criteria.map(c => parseInt(c, 10));
+        const scores = criteria.map(c => parseInt(c.score, 10));
         if (scores.some(isNaN)) {
-            setError('Todos los criterios deben tener un valor numérico.');
+            setError('Todos los criterios deben tener un puntaje numérico.');
             setResult(null);
             return;
         }
         
         if(scores.some(s => s < 0)) {
-            setError('Las calificaciones de los criterios no pueden ser negativas.');
+            setError('Los puntajes de los criterios no pueden ser negativos.');
             setResult(null);
             return;
         }
@@ -122,7 +120,7 @@ const StudentAverageCalculator: React.FC = () => {
         const total = scores.reduce((sum, score) => sum + score, 0);
         
         if (total > 100) {
-            setError(`La suma de criterios (${total}) no puede superar 100.`);
+            setError(`La suma de puntajes (${total}) no puede superar 100.`);
             setResult(null);
             return;
         }
@@ -135,12 +133,28 @@ const StudentAverageCalculator: React.FC = () => {
         <Card>
             <h2 className="text-xl font-bold mb-4 text-sky-400">Calcular Promedio de Alumno</h2>
             <div className="space-y-4">
-                <Input label="Cantidad de Criterios de Evaluación" value={numCriteria} onChange={(e) => setNumCriteria(e.target.value)} min="1" max="20" />
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4">
-                    {criteria.map((value, index) => (
-                        <Input key={index} label={`Criterio ${index + 1}`} value={value} onChange={(e) => handleCriteriaChange(index, e.target.value)} min="0" max="100" />
-                    ))}
-                </div>
+                {criteria.map((criterion, index) => (
+                    <div key={criterion.id} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-6">
+                            <Input label={`Criterio ${index + 1}`} type="text" placeholder="Ej: Examen" value={criterion.name} onChange={(e) => handleCriteriaChange(criterion.id, 'name', e.target.value)} />
+                        </div>
+                        <div className="col-span-5">
+                            <Input label="Puntaje" value={criterion.score} onChange={(e) => handleCriteriaChange(criterion.id, 'score', e.target.value)} min="0" max="100" />
+                        </div>
+                        <div className="col-span-1 flex items-end justify-center h-full pb-2">
+                             {criteria.length > 1 && (
+                                <button onClick={() => removeCriterion(criterion.id)} className="text-slate-500 hover:text-red-400 transition-colors" aria-label="Eliminar criterio">
+                                    <RemoveIcon />
+                                </button>
+                             )}
+                        </div>
+                    </div>
+                ))}
+                {criteria.length < 20 && (
+                     <button onClick={addCriterion} className="w-full text-sky-400 border border-sky-400 hover:bg-sky-900 font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        + Agregar Criterio
+                    </button>
+                )}
             </div>
              <button onClick={handleCalculate} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
                 Calcular
@@ -156,30 +170,28 @@ const StudentAverageCalculator: React.FC = () => {
 };
 
 const GroupAverageCalculator: React.FC = () => {
-    const [numStudents, setNumStudents] = useState('1');
-    const [grades, setGrades] = useState<string[]>(['']);
+    const [students, setStudents] = useState<Student[]>([{ id: crypto.randomUUID(), name: '', grade: '' }]);
     const [result, setResult] = useState<GroupAverageResult | null>(null);
     const [error, setError] = useState<string>('');
 
-    React.useEffect(() => {
-        const count = parseInt(numStudents) || 0;
-        if (count > 0 && count <= 50) { // Limit to 50 students for performance
-            setGrades(g => {
-                const newGrades = [...g];
-                while (newGrades.length < count) newGrades.push('');
-                return newGrades.slice(0, count);
-            });
-        }
-    }, [numStudents]);
+    const handleStudentChange = (id: string, field: 'name' | 'grade', value: string) => {
+        setStudents(students.map(s => s.id === id ? { ...s, [field]: value } : s));
+    };
 
-    const handleGradeChange = (index: number, value: string) => {
-        const newGrades = [...grades];
-        newGrades[index] = value;
-        setGrades(newGrades);
+    const addStudent = () => {
+        if (students.length < 50) {
+            setStudents([...students, { id: crypto.randomUUID(), name: '', grade: '' }]);
+        }
     };
     
+    const removeStudent = (id: string) => {
+        if (students.length > 1) {
+            setStudents(students.filter(s => s.id !== id));
+        }
+    };
+
     const handleCalculate = () => {
-        const numericGrades = grades.map(g => parseInt(g, 10));
+        const numericGrades = students.map(s => parseInt(s.grade, 10));
 
         if (numericGrades.some(isNaN)) {
             setError('Todas las calificaciones de los alumnos deben ser números.');
@@ -187,8 +199,8 @@ const GroupAverageCalculator: React.FC = () => {
             return;
         }
 
-        if (numericGrades.some(g => g < 10 || g > 100)) {
-            setError('Las calificaciones deben estar entre 10 y 100.');
+        if (numericGrades.some(g => g < 0 || g > 100)) {
+            setError('Las calificaciones deben estar entre 0 y 100.');
             setResult(null);
             return;
         }
@@ -209,14 +221,30 @@ const GroupAverageCalculator: React.FC = () => {
     return (
         <Card>
             <h2 className="text-xl font-bold mb-4 text-sky-400">Calcular Promedio General del Grupo</h2>
-            <Input label="Cantidad de Alumnos" value={numStudents} onChange={(e) => setNumStudents(e.target.value)} min="1" max="50" />
-
-            <div className="mt-4 max-h-80 overflow-y-auto pr-2">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {grades.map((grade, index) => (
-                        <Input key={index} label={`Alumno ${index + 1}`} value={grade} onChange={(e) => handleGradeChange(index, e.target.value)} min="10" max="100"/>
-                    ))}
-                </div>
+            
+            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                 {students.map((student, index) => (
+                    <div key={student.id} className="grid grid-cols-12 gap-2 items-center">
+                        <div className="col-span-6">
+                            <Input label={`Alumno ${index + 1}`} type="text" placeholder="Nombre..." value={student.name} onChange={(e) => handleStudentChange(student.id, 'name', e.target.value)} />
+                        </div>
+                        <div className="col-span-5">
+                            <Input label="Calificación" value={student.grade} onChange={(e) => handleStudentChange(student.id, 'grade', e.target.value)} min="0" max="100" />
+                        </div>
+                         <div className="col-span-1 flex items-end justify-center h-full pb-2">
+                             {students.length > 1 && (
+                                <button onClick={() => removeStudent(student.id)} className="text-slate-500 hover:text-red-400 transition-colors" aria-label="Eliminar alumno">
+                                    <RemoveIcon />
+                                </button>
+                             )}
+                        </div>
+                    </div>
+                ))}
+                 {students.length < 50 && (
+                     <button onClick={addStudent} className="w-full text-sky-400 border border-sky-400 hover:bg-sky-900 font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        + Agregar Alumno
+                    </button>
+                )}
             </div>
 
             <button onClick={handleCalculate} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
@@ -229,8 +257,8 @@ const GroupAverageCalculator: React.FC = () => {
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <ResultDisplay title="Promedio Grupo" value={result.groupAverage.toFixed(2)} unit="/100" />
                     <ResultDisplay title="Promedio" value={result.averageOn10.toFixed(2)} unit="/10" />
-                    <ResultDisplay title="% Aprobación" value={result.approvalRate.toFixed(2)} unit="%" />
-                    <ResultDisplay title="Reprobados" value={result.failedCount.toString()} unit="alumnos" />
+                    <ResultDisplay title="% Aprobación" value={result.approvalRate.toFixed(2)} unit="%" valueClassName={result.approvalRate >= 60 ? 'text-green-400' : 'text-yellow-400'}/>
+                    <ResultDisplay title="Reprobados" value={result.failedCount.toString()} unit="alumnos" valueClassName={result.failedCount > 0 ? 'text-red-400' : 'text-sky-400'}/>
                 </div>
             )}
         </Card>
@@ -258,7 +286,8 @@ const App: React.FC = () => {
             <div className="max-w-4xl mx-auto">
                 <header className="text-center mb-8">
                     <h1 className="text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-                        Calculadora de Papá
+                        <p>Calculadora de Evaluación</p> 
+                                <p>Sec. Num 5</p>
                     </h1>
                     <p className="mt-3 text-lg text-slate-400">Una herramienta para gestión de clases</p>
                 </header>
@@ -288,7 +317,7 @@ const App: React.FC = () => {
                     {renderContent()}
                 </main>
                  <footer className="text-center mt-12 text-slate-500 text-sm">
-                    <p>Adaptado de la idea original de Pablo Soriano.</p>
+                    <p>Adaptado por Pablo Soriano.</p>
                 </footer>
             </div>
         </div>

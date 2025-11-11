@@ -1,4 +1,3 @@
-
 export type TabOption = 'attendance' | 'student' | 'group';
 
 export interface AttendanceResult {
@@ -12,4 +11,16 @@ export interface GroupAverageResult {
   approvalRate: number;
   passedCount: number;
   failedCount: number;
+}
+
+export interface Criterion {
+  id: string;
+  name: string;
+  score: string;
+}
+
+export interface Student {
+  id: string;
+  name: string;
+  grade: string;
 }
