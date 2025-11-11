@@ -317,7 +317,7 @@ const App: React.FC = () => {
                     {renderContent()}
                 </main>
                  <footer className="text-center mt-12 text-slate-500 text-sm">
-                    <p>Creado por Pablo Soriano.</p>
+                   // <p>Creado por Pablo Soriano.</p>
                     <p>Adaptado por Victor Hernandez.</p>
                 </footer>
             </div>
