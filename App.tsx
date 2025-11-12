@@ -207,7 +207,7 @@ const GroupAverageCalculator: React.FC = () => {
         
         const studentsCount = numericGrades.length;
         const sum = numericGrades.reduce((acc, grade) => acc + grade, 0);
-        const failedCount = numericGrades.filter(g => g <= 50).length;
+        const failedCount = numericGrades.filter(g => g <= 60).length;
         const passedCount = studentsCount - failedCount;
         
         const groupAverage = sum / studentsCount;
