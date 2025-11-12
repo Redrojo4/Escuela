@@ -179,7 +179,7 @@ const GroupAverageCalculator: React.FC = () => {
     };
 
     const addStudent = () => {
-        if (students.length < 50) {
+        if (students.length <= 60) {
             setStudents([...students, { id: crypto.randomUUID(), name: '', grade: '' }]);
         }
     };
