@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { TabOption, AttendanceResult, GroupAverageResult, Criterion, Student } from './types';
 import { Card } from './components/Card';
@@ -170,17 +171,17 @@ const StudentAverageCalculator: React.FC = () => {
 };
 
 const GroupAverageCalculator: React.FC = () => {
-    const [students, setStudents] = useState<Student[]>([{ id: crypto.randomUUID(), name: '', grade: '' }]);
+    const [students, setStudents] = useState<Student[]>([{ id: crypto.randomUUID(), grade: '' }]);
     const [result, setResult] = useState<GroupAverageResult | null>(null);
     const [error, setError] = useState<string>('');
 
-    const handleStudentChange = (id: string, field: 'name' | 'grade', value: string) => {
-        setStudents(students.map(s => s.id === id ? { ...s, [field]: value } : s));
+    const handleStudentChange = (id: string, value: string) => {
+        setStudents(students.map(s => s.id === id ? { ...s, grade: value } : s));
     };
 
     const addStudent = () => {
         if (students.length <= 60) {
-            setStudents([...students, { id: crypto.randomUUID(), name: '', grade: '' }]);
+            setStudents([...students, { id: crypto.randomUUID(), grade: '' }]);
         }
     };
     
@@ -194,7 +195,7 @@ const GroupAverageCalculator: React.FC = () => {
         const numericGrades = students.map(s => parseInt(s.grade, 10));
 
         if (numericGrades.some(isNaN)) {
-            setError('Todas las calificaciones de los alumnos deben ser números.');
+            setError('Todas las calificaciones deben ser números.');
             setResult(null);
             return;
         }
@@ -225,11 +226,15 @@ const GroupAverageCalculator: React.FC = () => {
             <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                  {students.map((student, index) => (
                     <div key={student.id} className="grid grid-cols-12 gap-2 items-center">
-                        <div className="col-span-6">
-                            <Input label={`Alumno ${index + 1}`} type="text" placeholder="Nombre..." value={student.name} onChange={(e) => handleStudentChange(student.id, 'name', e.target.value)} />
-                        </div>
-                        <div className="col-span-5">
-                            <Input label="Calificación" value={student.grade} onChange={(e) => handleStudentChange(student.id, 'grade', e.target.value)} min="0" max="100" />
+                        <div className="col-span-11">
+                            <Input 
+                                label={`Calificación Alumno ${index + 1}`} 
+                                value={student.grade} 
+                                onChange={(e) => handleStudentChange(student.id, e.target.value)} 
+                                min="0" 
+                                max="100" 
+                                placeholder="0-100"
+                            />
                         </div>
                          <div className="col-span-1 flex items-end justify-center h-full pb-2">
                              {students.length > 1 && (

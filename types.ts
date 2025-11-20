@@ -1,3 +1,4 @@
+
 export type TabOption = 'attendance' | 'student' | 'group';
 
 export interface AttendanceResult {
@@ -21,6 +22,5 @@ export interface Criterion {
 
 export interface Student {
   id: string;
-  name: string;
   grade: string;
 }
