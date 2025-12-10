@@ -14,7 +14,7 @@ const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>;
 const ClassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" /></svg>;
 const CalcIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd" /></svg>;
-
+const KeyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 000-2z" clipRule="evenodd" /></svg>;
 
 const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valueClassName?: string }> = ({ title, value, unit, valueClassName = 'text-sky-400' }) => (
     <div className="flex flex-col items-center justify-center p-4 bg-slate-700 rounded-lg text-center">
@@ -25,13 +25,25 @@ const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valu
     </div>
 );
 
-// --- ORIGINAL CALCULATOR COMPONENTS ---
-const AttendanceCalculator: React.FC = () => {
+// --- CALCULATOR COMPONENTS ---
+
+interface AttendanceCalculatorProps {
+    forcedStudentCount?: number;
+}
+
+const AttendanceCalculator: React.FC<AttendanceCalculatorProps> = ({ forcedStudentCount }) => {
     const [numStudents, setNumStudents] = useState('');
     const [numSessions, setNumSessions] = useState('');
     const [totalAbsences, setTotalAbsences] = useState('');
     const [result, setResult] = useState<AttendanceResult | null>(null);
     const [error, setError] = useState<string>('');
+
+    // If forcedStudentCount provided (from DB), update the state and keep it in sync
+    useEffect(() => {
+        if (forcedStudentCount !== undefined) {
+            setNumStudents(forcedStudentCount.toString());
+        }
+    }, [forcedStudentCount]);
 
     const handleCalculate = () => {
         const students = parseInt(numStudents, 10);
@@ -69,12 +81,22 @@ const AttendanceCalculator: React.FC = () => {
         <Card>
             <h2 className="text-xl font-bold mb-4 text-sky-400">Calcular Asistencia del Grupo</h2>
             <div className="space-y-4">
-                <Input label="Cantidad de Alumnos" value={numStudents} onChange={(e) => setNumStudents(e.target.value)} min="1" />
-                <Input label="Número de Sesiones" value={numSessions} onChange={(e) => setNumSessions(e.target.value)} min="1" />
-                <Input label="Faltas Totales del Grupo" value={totalAbsences} onChange={(e) => setTotalAbsences(e.target.value)} min="0" />
+                <Input 
+                    label="Cantidad de Alumnos" 
+                    value={numStudents} 
+                    onChange={(e) => !forcedStudentCount && setNumStudents(e.target.value)} 
+                    min="1" 
+                    type="number"
+                    disabled={!!forcedStudentCount}
+                    className={`w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 ${forcedStudentCount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                />
+                {forcedStudentCount && <p className="text-xs text-slate-400 mt-[-10px]">* Calculado automáticamente según alumnos inscritos</p>}
+                
+                <Input label="Número de Sesiones" value={numSessions} onChange={(e) => setNumSessions(e.target.value)} min="1" type="number" />
+                <Input label="Faltas Totales del Grupo" value={totalAbsences} onChange={(e) => setTotalAbsences(e.target.value)} min="0" type="number" />
             </div>
             <button onClick={handleCalculate} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                Calcular
+                Calcular Asistencia
             </button>
             {error && <p className="mt-4 text-red-400 text-center">{error}</p>}
             {result && (
@@ -87,10 +109,16 @@ const AttendanceCalculator: React.FC = () => {
     );
 };
 
-const StudentAverageCalculator: React.FC = () => {
+interface StudentAverageCalculatorProps {
+    enrolledStudents?: EnrolledStudent[];
+    onSaveGrade?: (studentId: string, grade: number) => void;
+}
+
+const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enrolledStudents, onSaveGrade }) => {
     const [criteria, setCriteria] = useState<Criterion[]>([{ id: crypto.randomUUID(), name: '', score: '' }]);
     const [result, setResult] = useState<number | null>(null);
     const [error, setError] = useState<string>('');
+    const [selectedStudentId, setSelectedStudentId] = useState<string>('');
 
     const handleCriteriaChange = (id: string, field: 'name' | 'score', value: string) => {
         setCriteria(criteria.map(c => c.id === id ? { ...c, [field]: value } : c));
@@ -134,9 +162,40 @@ const StudentAverageCalculator: React.FC = () => {
         setError('');
     };
 
+    const handleSave = () => {
+        if (result !== null && selectedStudentId && onSaveGrade) {
+            onSaveGrade(selectedStudentId, result);
+            alert("Calificación guardada correctamente.");
+            // Reset for next student?
+            setResult(null);
+            setCriteria([{ id: crypto.randomUUID(), name: '', score: '' }]);
+        } else if (!selectedStudentId) {
+            setError("Debes seleccionar un alumno para guardar.");
+        }
+    }
+
     return (
         <Card>
-            <h2 className="text-xl font-bold mb-4 text-sky-400">Calcular Promedio de Alumno</h2>
+            <h2 className="text-xl font-bold mb-4 text-sky-400">Evaluar Alumno</h2>
+            
+            {enrolledStudents && (
+                <div className="mb-6">
+                    <label className="block text-sm font-medium text-slate-400 mb-1">Seleccionar Alumno</label>
+                    <select 
+                        className="w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                        value={selectedStudentId}
+                        onChange={(e) => setSelectedStudentId(e.target.value)}
+                    >
+                        <option value="">-- Selecciona un alumno --</option>
+                        {enrolledStudents.map(s => (
+                            <option key={s.id} value={s.id}>
+                                {s.name} {s.grade !== null ? `(Actual: ${s.grade})` : '(Sin Calif.)'}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            )}
+
             <div className="space-y-4">
                 {criteria.map((criterion, index) => (
                     <div key={criterion.id} className="grid grid-cols-12 gap-2 items-center">
@@ -144,7 +203,7 @@ const StudentAverageCalculator: React.FC = () => {
                             <Input label={`Criterio ${index + 1}`} type="text" placeholder="Ej: Examen" value={criterion.name} onChange={(e) => handleCriteriaChange(criterion.id, 'name', e.target.value)} />
                         </div>
                         <div className="col-span-5">
-                            <Input label="Puntaje" value={criterion.score} onChange={(e) => handleCriteriaChange(criterion.id, 'score', e.target.value)} min="0" max="100" />
+                            <Input label="Puntaje" value={criterion.score} onChange={(e) => handleCriteriaChange(criterion.id, 'score', e.target.value)} min="0" max="100" type="number" />
                         </div>
                         <div className="col-span-1 flex items-end justify-center h-full pb-2">
                              {criteria.length > 1 && (
@@ -162,55 +221,90 @@ const StudentAverageCalculator: React.FC = () => {
                 )}
             </div>
              <button onClick={handleCalculate} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                Calcular
+                Calcular Promedio
             </button>
             {error && <p className="mt-4 text-red-400 text-center">{error}</p>}
+            
             {result !== null && (
-                 <div className="mt-6 grid grid-cols-1 gap-4">
-                    <ResultDisplay title="Calificación Final del Alumno" value={result.toFixed(0)} unit="/ 100" />
+                 <div className="mt-6 p-4 bg-slate-900 rounded-lg border border-sky-900">
+                    <div className="grid grid-cols-1 gap-4 mb-4">
+                        <ResultDisplay title="Calificación Calculada" value={result.toFixed(0)} unit="/ 100" />
+                    </div>
+                    {enrolledStudents && onSaveGrade && (
+                        <button 
+                            onClick={handleSave}
+                            className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                            </svg>
+                            Guardar en Boleta del Alumno
+                        </button>
+                    )}
                 </div>
             )}
         </Card>
     );
 };
 
-const GroupAverageCalculator: React.FC = () => {
-    const [students, setStudents] = useState<Student[]>([{ id: crypto.randomUUID(), grade: '' }]);
+interface GroupAverageCalculatorProps {
+    enrolledStudents?: EnrolledStudent[];
+}
+
+const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolledStudents }) => {
+    // If used in standalone mode, we manage a local list of students.
+    // If enrolledStudents is provided, we use that instead.
+    
+    const [manualStudents, setManualStudents] = useState<Student[]>([{ id: crypto.randomUUID(), grade: '' }]);
     const [result, setResult] = useState<GroupAverageResult | null>(null);
     const [error, setError] = useState<string>('');
 
-    const handleStudentChange = (id: string, value: string) => {
-        setStudents(students.map(s => s.id === id ? { ...s, grade: value } : s));
+    // If real data is passed, calculate automatically on mount/update
+    useEffect(() => {
+        if (enrolledStudents && enrolledStudents.length > 0) {
+            calculateStats(enrolledStudents.map(s => s.grade ?? 0));
+        } else if (enrolledStudents && enrolledStudents.length === 0) {
+            setResult(null); // No students
+        }
+    }, [enrolledStudents]);
+
+    const handleManualStudentChange = (id: string, value: string) => {
+        setManualStudents(manualStudents.map(s => s.id === id ? { ...s, grade: value } : s));
     };
 
-    const addStudent = () => {
-        if (students.length <= 60) {
-            setStudents([...students, { id: crypto.randomUUID(), grade: '' }]);
-        }
+    const addManualStudent = () => {
+        setManualStudents([...manualStudents, { id: crypto.randomUUID(), grade: '' }]);
     };
     
-    const removeStudent = (id: string) => {
-        if (students.length > 1) {
-            setStudents(students.filter(s => s.id !== id));
+    const removeManualStudent = (id: string) => {
+        if (manualStudents.length > 1) {
+            setManualStudents(manualStudents.filter(s => s.id !== id));
         }
     };
 
-    const handleCalculate = () => {
-        const numericGrades = students.map(s => parseInt(s.grade, 10));
-
+    const handleCalculateManual = () => {
+        const numericGrades = manualStudents.map(s => parseInt(s.grade, 10));
         if (numericGrades.some(isNaN)) {
             setError('Todas las calificaciones deben ser números.');
             setResult(null);
             return;
         }
+        calculateStats(numericGrades);
+    };
 
-        if (numericGrades.some(g => g < 0 || g > 100)) {
+    const calculateStats = (numericGrades: number[]) => {
+         if (numericGrades.some(g => g < 0 || g > 100)) {
             setError('Las calificaciones deben estar entre 0 y 100.');
             setResult(null);
             return;
         }
         
         const studentsCount = numericGrades.length;
+        if(studentsCount === 0) {
+            setResult(null);
+            return;
+        }
+
         const sum = numericGrades.reduce((acc, grade) => acc + grade, 0);
         const failedCount = numericGrades.filter(g => g <= 59).length;
         const passedCount = studentsCount - failedCount;
@@ -221,45 +315,75 @@ const GroupAverageCalculator: React.FC = () => {
         
         setResult({ groupAverage, averageOn10, approvalRate, passedCount, failedCount });
         setError('');
-    };
+    }
 
     return (
         <Card>
-            <h2 className="text-xl font-bold mb-4 text-sky-400">Calcular Promedio General del Grupo</h2>
+            <h2 className="text-xl font-bold mb-4 text-sky-400">Estadísticas del Grupo</h2>
             
-            <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                 {students.map((student, index) => (
-                    <div key={student.id} className="grid grid-cols-12 gap-2 items-center">
-                        <div className="col-span-11">
-                            <Input 
-                                label={`Calificación Alumno ${index + 1}`} 
-                                value={student.grade} 
-                                onChange={(e) => handleStudentChange(student.id, e.target.value)} 
-                                min="0" 
-                                max="100" 
-                                placeholder="0-100"
-                            />
-                        </div>
-                         <div className="col-span-1 flex items-end justify-center h-full pb-2">
-                             {students.length > 1 && (
-                                <button onClick={() => removeStudent(student.id)} className="text-slate-500 hover:text-red-400 transition-colors" aria-label="Eliminar alumno">
-                                    <RemoveIcon />
-                                </button>
-                             )}
-                        </div>
+            {enrolledStudents ? (
+                // --- LINKED MODE ---
+                <div className="space-y-4">
+                     <div className="max-h-60 overflow-y-auto bg-slate-900 rounded p-4 border border-slate-700">
+                        <table className="w-full text-left text-sm">
+                            <thead>
+                                <tr className="border-b border-slate-700 text-slate-400">
+                                    <th className="pb-2">Alumno</th>
+                                    <th className="pb-2 text-right">Calificación</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {enrolledStudents.map(s => (
+                                    <tr key={s.id} className="border-b border-slate-800 last:border-0">
+                                        <td className="py-2">{s.name}</td>
+                                        <td className={`py-2 text-right font-bold ${(s.grade ?? 0) < 60 ? 'text-red-400' : 'text-green-400'}`}>
+                                            {s.grade ?? '-'}
+                                        </td>
+                                    </tr>
+                                ))}
+                                {enrolledStudents.length === 0 && (
+                                    <tr><td colSpan={2} className="py-4 text-center text-slate-500">No hay alumnos en este grupo.</td></tr>
+                                )}
+                            </tbody>
+                        </table>
                     </div>
-                ))}
-                 {students.length < 50 && (
-                     <button onClick={addStudent} className="w-full text-sky-400 border border-sky-400 hover:bg-sky-900 font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                        + Agregar Alumno
+                </div>
+            ) : (
+                // --- MANUAL MODE ---
+                <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                     {manualStudents.map((student, index) => (
+                        <div key={student.id} className="grid grid-cols-12 gap-2 items-center">
+                            <div className="col-span-11">
+                                <Input 
+                                    label={`Calificación Alumno ${index + 1}`} 
+                                    value={student.grade} 
+                                    onChange={(e) => handleManualStudentChange(student.id, e.target.value)} 
+                                    min="0" 
+                                    max="100" 
+                                    placeholder="0-100"
+                                    type="number"
+                                />
+                            </div>
+                             <div className="col-span-1 flex items-end justify-center h-full pb-2">
+                                 {manualStudents.length > 1 && (
+                                    <button onClick={() => removeManualStudent(student.id)} className="text-slate-500 hover:text-red-400 transition-colors" aria-label="Eliminar alumno">
+                                        <RemoveIcon />
+                                    </button>
+                                 )}
+                            </div>
+                        </div>
+                    ))}
+                     {manualStudents.length < 50 && (
+                         <button onClick={addManualStudent} className="w-full text-sky-400 border border-sky-400 hover:bg-sky-900 font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                            + Agregar Alumno
+                        </button>
+                    )}
+                     <button onClick={handleCalculateManual} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
+                        Calcular
                     </button>
-                )}
-            </div>
+                </div>
+            )}
 
-            <button onClick={handleCalculate} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                Calcular
-            </button>
-            
             {result && (
                 <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
                     <ResultDisplay title="Promedio Grupo" value={result.groupAverage.toFixed(2)} unit="/100" />
@@ -275,52 +399,7 @@ const GroupAverageCalculator: React.FC = () => {
 
 // --- NEW APP COMPONENTS ---
 
-const CalculatorModule: React.FC = () => {
-    const [activeTab, setActiveTab] = useState<TabOption>('attendance');
-
-    const renderContent = () => {
-        switch (activeTab) {
-            case 'attendance':
-                return <AttendanceCalculator />;
-            case 'student':
-                return <StudentAverageCalculator />;
-            case 'group':
-                return <GroupAverageCalculator />;
-            default:
-                return null;
-        }
-    };
-
-    return (
-        <div>
-            <nav className="flex justify-center items-center space-x-2 sm:space-x-4 mb-8">
-                <Tab 
-                  label="Asistencia" 
-                  isActive={activeTab === 'attendance'} 
-                  onClick={() => setActiveTab('attendance')} 
-                  icon={<AttendanceIcon />}
-                />
-                <Tab 
-                  label="Alumno" 
-                  isActive={activeTab === 'student'} 
-                  onClick={() => setActiveTab('student')}
-                  icon={<StudentIcon />}
-                />
-                <Tab 
-                  label="Grupo" 
-                  isActive={activeTab === 'group'} 
-                  onClick={() => setActiveTab('group')} 
-                  icon={<GroupIcon />}
-                />
-            </nav>
-            <main>
-                {renderContent()}
-            </main>
-        </div>
-    );
-}
-
-const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: string }> = ({ onLogin, error }) => {
+const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: string, onReset: () => void }> = ({ onLogin, error, onReset }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -345,6 +424,15 @@ const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: st
                         <p>Prueba Docente: docente / docente123</p>
                     </div>
                 </form>
+                <div className="text-center mt-4">
+                    <button 
+                        type="button" 
+                        onClick={onReset} 
+                        className="text-xs text-slate-500 underline hover:text-sky-400 transition-colors"
+                    >
+                        Restaurar Datos de Prueba (Si no puedes entrar)
+                    </button>
+                </div>
             </Card>
         </div>
     );
@@ -476,9 +564,24 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
                                         <p className="font-bold">{teacher.name}</p>
                                         <p className="text-xs text-slate-400">@{teacher.username}</p>
                                     </div>
-                                    <button onClick={() => actions.deleteUser(teacher.id)} className="text-red-400 hover:text-red-300 p-1">
-                                        <RemoveIcon />
-                                    </button>
+                                    <div className="flex items-center gap-2">
+                                        <button 
+                                            onClick={() => {
+                                                const newPass = prompt(`Ingrese la nueva contraseña para ${teacher.name}:`);
+                                                if (newPass) {
+                                                    actions.resetPassword(teacher.id, newPass);
+                                                    alert('Contraseña actualizada correctamente.');
+                                                }
+                                            }}
+                                            className="text-yellow-400 hover:text-yellow-300 p-1"
+                                            title="Cambiar Contraseña"
+                                        >
+                                            <KeyIcon />
+                                        </button>
+                                        <button onClick={() => actions.deleteUser(teacher.id)} className="text-red-400 hover:text-red-300 p-1">
+                                            <RemoveIcon />
+                                        </button>
+                                    </div>
                                 </div>
                             ))}
                             {teachers.length === 0 && <p className="text-slate-500 italic">No hay docentes registrados.</p>}
@@ -543,8 +646,8 @@ interface TeacherDashboardProps {
 }
 
 const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classrooms, students, actions }) => {
-    const [tab, setTab] = useState<'my_classes' | 'calculator'>('my_classes');
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<TabOption>('attendance');
 
     const myClassrooms = classrooms.filter(c => c.teacherId === currentUser.id);
 
@@ -552,61 +655,93 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
         const currentClass = classrooms.find(c => c.id === selectedClassId);
         const classStudents = students.filter(s => s.classroomId === selectedClassId);
         
+        const renderContent = () => {
+            switch (activeTab) {
+                case 'attendance':
+                    return <AttendanceCalculator forcedStudentCount={classStudents.length} />;
+                case 'student':
+                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updateGrade} />;
+                case 'group':
+                    return <GroupAverageCalculator enrolledStudents={classStudents} />;
+                default:
+                    return null;
+            }
+        };
+
         return (
             <div>
                  <button onClick={() => setSelectedClassId(null)} className="mb-4 text-sky-400 hover:text-sky-300 flex items-center gap-1">
                     &larr; Volver a Mis Salones
                 </button>
-                <Card>
-                    <h2 className="text-2xl font-bold mb-4 text-white">Calificaciones: {currentClass?.name}</h2>
-                    <div className="space-y-2">
-                        {classStudents.map(student => (
-                            <div key={student.id} className="flex items-center justify-between bg-slate-700 p-3 rounded">
-                                <span className="font-bold">{student.name}</span>
-                                <div className="flex items-center gap-2">
-                                    <span className="text-sm text-slate-400 mr-2">Calif:</span>
-                                    <input 
-                                        type="number" 
-                                        min="0" max="100"
-                                        className="w-20 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-center text-white focus:border-sky-500 focus:ring-1 focus:ring-sky-500"
-                                        value={student.grade ?? ''}
-                                        placeholder="-"
-                                        onChange={(e) => actions.updateGrade(student.id, e.target.value ? parseInt(e.target.value) : null)}
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                        {classStudents.length === 0 && <p className="text-slate-500 text-center py-4">No hay alumnos inscritos en este salón.</p>}
-                    </div>
-                </Card>
+                <div className="mb-6">
+                    <h2 className="text-3xl font-bold text-white mb-1">{currentClass?.name}</h2>
+                    <p className="text-slate-400">Gestionando {classStudents.length} alumnos</p>
+                </div>
+                
+                <nav className="flex justify-center items-center space-x-2 sm:space-x-4 mb-8 overflow-x-auto">
+                    <Tab 
+                    label="Asistencia" 
+                    isActive={activeTab === 'attendance'} 
+                    onClick={() => setActiveTab('attendance')} 
+                    icon={<AttendanceIcon />}
+                    />
+                    <Tab 
+                    label="Evaluación Alumno" 
+                    isActive={activeTab === 'student'} 
+                    onClick={() => setActiveTab('student')}
+                    icon={<StudentIcon />}
+                    />
+                    <Tab 
+                    label="Estadísticas Grupo" 
+                    isActive={activeTab === 'group'} 
+                    onClick={() => setActiveTab('group')} 
+                    icon={<GroupIcon />}
+                    />
+                </nav>
+                
+                <main>
+                    {renderContent()}
+                </main>
             </div>
         )
     }
 
     return (
         <div>
-             <div className="flex justify-center space-x-4 mb-6">
-                <Tab label="Mis Salones" isActive={tab === 'my_classes'} onClick={() => setTab('my_classes')} icon={<ClassIcon />} />
-                <Tab label="Calculadora" isActive={tab === 'calculator'} onClick={() => setTab('calculator')} icon={<CalcIcon />} />
+            <h2 className="text-2xl font-bold mb-6 text-white text-center">Selecciona un Salón para trabajar</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {myClassrooms.map(cls => (
+                    <div key={cls.id} onClick={() => setSelectedClassId(cls.id)} className="cursor-pointer bg-slate-800 p-6 rounded-lg shadow-lg hover:bg-slate-700 transition-colors border border-transparent hover:border-sky-500 group">
+                        <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-sky-400">{cls.name}</h3>
+                        <p className="text-slate-400">{students.filter(s => s.classroomId === cls.id).length} Alumnos</p>
+                    </div>
+                ))}
+                {myClassrooms.length === 0 && (
+                    <div className="col-span-full text-center text-slate-500 py-10 bg-slate-800 rounded-lg">
+                        No tienes salones asignados. Contacta al administrador.
+                    </div>
+                )}
             </div>
-
-            {tab === 'calculator' && <CalculatorModule />}
             
-            {tab === 'my_classes' && (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {myClassrooms.map(cls => (
-                        <div key={cls.id} onClick={() => setSelectedClassId(cls.id)} className="cursor-pointer bg-slate-800 p-6 rounded-lg shadow-lg hover:bg-slate-700 transition-colors border border-transparent hover:border-sky-500 group">
-                            <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-sky-400">{cls.name}</h3>
-                            <p className="text-slate-400">{students.filter(s => s.classroomId === cls.id).length} Alumnos</p>
-                        </div>
-                    ))}
-                    {myClassrooms.length === 0 && (
-                        <div className="col-span-full text-center text-slate-500 py-10 bg-slate-800 rounded-lg">
-                            No tienes salones asignados. Contacta al administrador.
-                        </div>
-                    )}
+            <div className="mt-12 pt-8 border-t border-slate-800">
+                <h3 className="text-xl text-slate-500 mb-4 text-center">Calculadoras Rápidas (Sin guardar datos)</h3>
+                <div className="flex justify-center gap-4 flex-wrap">
+                    <button onClick={() => setSelectedClassId('manual')} className="bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 px-4 rounded border border-slate-700">
+                        Calculadora Manual
+                    </button>
                 </div>
-            )}
+                {selectedClassId === 'manual' && (
+                     <div className="mt-8">
+                         <button onClick={() => setSelectedClassId(null)} className="mb-4 text-sky-400 hover:text-sky-300 flex items-center gap-1 mx-auto">
+                            &uarr; Cerrar Manual
+                        </button>
+                        {/* Re-using the manual layout logic inside a wrapper or just simple tabs again */}
+                        <div className="max-w-3xl mx-auto">
+                            <StudentAverageCalculator />
+                        </div>
+                     </div>
+                )}
+            </div>
         </div>
     );
 }
@@ -659,9 +794,19 @@ const App: React.FC = () => {
         setLoginError('');
     }
 
+    const handleResetData = () => {
+        if(window.confirm("¿Estás seguro de restaurar los datos de prueba? Se borrarán todos los usuarios y salones creados.")){
+            localStorage.removeItem('school_users');
+            localStorage.removeItem('school_classrooms');
+            localStorage.removeItem('school_students');
+            window.location.reload();
+        }
+    }
+
     const dbActions = {
         addUser: (user: User) => setUsers([...users, user]),
         deleteUser: (id: string) => setUsers(users.filter(u => u.id !== id)),
+        resetPassword: (id: string, newPass: string) => setUsers(users.map(u => u.id === id ? { ...u, password: newPass } : u)),
         addClassroom: (cls: Classroom) => setClassrooms([...classrooms, cls]),
         deleteClassroom: (id: string) => setClassrooms(classrooms.filter(c => c.id !== id)),
         addStudent: (student: EnrolledStudent) => setStudents([...students, student]),
@@ -693,7 +838,7 @@ const App: React.FC = () => {
                 </header>
                 
                 <main>
-                    {!currentUser && <LoginScreen onLogin={handleLogin} error={loginError} />}
+                    {!currentUser && <LoginScreen onLogin={handleLogin} error={loginError} onReset={handleResetData} />}
                     
                     {currentUser?.role === 'admin' && (
                         <AdminDashboard 

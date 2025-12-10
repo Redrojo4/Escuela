@@ -4,7 +4,7 @@ interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ label, id, type = 'number', ...props }, ref) => {
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(({ label, id, type = 'text', ...props }, ref) => {
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-slate-400 mb-1">
