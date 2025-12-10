@@ -106,8 +106,6 @@ class SchoolDatabase {
             return updated;
         }
 
-        // TypeScript usa camelCase (teacherId), pero Supabase a veces prefiere snake_case.
-        // Como creamos la tabla con "teacherId" (con comillas), esto funcionará directo.
         const { error } = await supabase.from('classrooms').insert(classroom);
         this.handleError(error);
         return this.getClassrooms();
@@ -142,6 +140,7 @@ class SchoolDatabase {
             return updated;
         }
 
+        // Supabase ignorará los campos si no existen en la tabla, pero es mejor que los tengas creados.
         const { error } = await supabase.from('students').insert(student);
         this.handleError(error);
         return this.getStudents();
@@ -178,11 +177,9 @@ class SchoolDatabase {
             return;
         }
         
-        // En una BD real, borrar todo es peligroso.
-        // Aquí borramos datos secuencialmente por las Foreign Keys
-        await supabase.from('students').delete().neq('id', '00000000-0000-0000-0000-000000000000'); // Borrar todos
+        await supabase.from('students').delete().neq('id', '00000000-0000-0000-0000-000000000000'); 
         await supabase.from('classrooms').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-        await supabase.from('users').delete().neq('username', 'admin'); // Intentamos dejar al admin si es posible
+        await supabase.from('users').delete().neq('username', 'admin'); 
     }
 }
 

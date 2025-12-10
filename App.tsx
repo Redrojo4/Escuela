@@ -6,7 +6,7 @@ import { Input } from './components/Input';
 import { Tab } from './components/Tab';
 import { db } from './database';
 
-// SVG Icons (Sin cambios, se mantienen igual)
+// SVG Icons
 const AttendanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg>;
 const StudentIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>;
 const GroupIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zm-1.5 5.5a3 3 0 00-3 0V13a1 1 0 00-1 1v1a1 1 0 001 1h3a1 1 0 001-1v-1a1 1 0 00-1-1v-.5zM15.5 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-3 5.5a3 3 0 013-3h1a3 3 0 013 3v.5a1 1 0 01-1 1v1a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a1 1 0 01-1-1V11.5z" /></svg>;
@@ -14,9 +14,9 @@ const RemoveIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 
 const LogoutIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clipRule="evenodd" /></svg>;
 const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>;
 const ClassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" /></svg>;
-const CalcIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd" /></svg>;
 const KeyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 000-2z" clipRule="evenodd" /></svg>;
 const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>;
+const LockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>;
 
 const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valueClassName?: string }> = ({ title, value, unit, valueClassName = 'text-sky-400' }) => (
     <div className="flex flex-col items-center justify-center p-4 bg-slate-700 rounded-lg text-center">
@@ -27,9 +27,7 @@ const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valu
     </div>
 );
 
-// --- CALCULATOR COMPONENTS (Sin cambios mayores, solo visuales) ---
-// ... (Se mantienen igual AttendanceCalculator, StudentAverageCalculator, GroupAverageCalculator)
-
+// --- CALCULATOR COMPONENTS ---
 interface AttendanceCalculatorProps {
     forcedStudentCount?: number;
 }
@@ -433,11 +431,27 @@ const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: ()
 const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStudent[], onBack: () => void }> = ({ classrooms, students, onBack }) => {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
+    const [accessCodeInput, setAccessCodeInput] = useState('');
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [authError, setAuthError] = useState('');
     
     // Derived state
     const filteredStudents = students.filter(s => s.classroomId === selectedClassId);
     const selectedStudent = students.find(s => s.id === selectedStudentId);
     const currentClass = classrooms.find(c => c.id === selectedClassId);
+
+    const handleVerify = () => {
+        if (!selectedStudent) return;
+        
+        // Verifica si el código coincide (o si no tiene código asignado, déjalo pasar por ahora)
+        if (!selectedStudent.access_code || selectedStudent.access_code === accessCodeInput.trim()) {
+            setIsAuthenticated(true);
+            setAuthError('');
+        } else {
+            setAuthError('Contraseña incorrecta. Inténtalo de nuevo.');
+            setIsAuthenticated(false);
+        }
+    };
 
     return (
         <div className="flex flex-col items-center pt-10 px-4 animate-fade-in">
@@ -456,7 +470,10 @@ const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStude
                             value={selectedClassId}
                             onChange={(e) => {
                                 setSelectedClassId(e.target.value);
-                                setSelectedStudentId(''); // Reset student when class changes
+                                setSelectedStudentId('');
+                                setIsAuthenticated(false);
+                                setAccessCodeInput('');
+                                setAuthError('');
                             }}
                         >
                             <option value="">-- Selecciona grupo --</option>
@@ -472,7 +489,12 @@ const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStude
                             <select 
                                 className="w-full bg-slate-700 border border-slate-600 rounded-md py-3 px-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                                 value={selectedStudentId}
-                                onChange={(e) => setSelectedStudentId(e.target.value)}
+                                onChange={(e) => {
+                                    setSelectedStudentId(e.target.value);
+                                    setIsAuthenticated(false);
+                                    setAccessCodeInput('');
+                                    setAuthError('');
+                                }}
                             >
                                 <option value="">-- Selecciona tu nombre --</option>
                                 {filteredStudents.map(s => (
@@ -482,9 +504,35 @@ const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStude
                             {filteredStudents.length === 0 && <p className="text-xs text-yellow-400 mt-2">No hay alumnos registrados en este grupo.</p>}
                         </div>
                     )}
+
+                    {/* Authentication Section */}
+                    {selectedStudentId && !isAuthenticated && (
+                        <div className="animate-fade-in mt-6 pt-4 border-t border-slate-700">
+                             <h3 className="text-lg font-bold text-sky-400 mb-3 flex items-center gap-2">
+                                <LockIcon /> Seguridad
+                             </h3>
+                             <p className="text-sm text-slate-400 mb-3">Ingresa la contraseña proporcionada por tu docente.</p>
+                             <div className="flex flex-col gap-3">
+                                 <Input 
+                                    label="Contraseña" 
+                                    type="password" 
+                                    value={accessCodeInput} 
+                                    onChange={(e) => setAccessCodeInput(e.target.value)}
+                                    placeholder="Ingresa tu código"
+                                 />
+                                 <button 
+                                    onClick={handleVerify}
+                                    className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md transition-colors"
+                                 >
+                                     Ver Mis Calificaciones
+                                 </button>
+                                 {authError && <p className="text-red-400 text-sm text-center">{authError}</p>}
+                             </div>
+                        </div>
+                    )}
                 </div>
 
-                {selectedStudent && currentClass && (
+                {selectedStudent && currentClass && isAuthenticated && (
                     <div className="mt-8 p-6 bg-slate-900 rounded-xl border border-slate-700 text-center animate-fade-in">
                         <div className="mb-4">
                             <p className="text-sm text-slate-400 uppercase tracking-wider">Alumno</p>
@@ -570,6 +618,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
     const [newClass, setNewClass] = useState({ name: '', teacherId: '' });
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
     const [newStudentName, setNewStudentName] = useState('');
+    const [newStudentDOB, setNewStudentDOB] = useState(''); // Estado para fecha nacimiento
 
     const teachers = users.filter(u => u.role === 'docente');
 
@@ -587,15 +636,27 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
         }
     };
 
+    const generateAccessCode = () => {
+        // Genera un código aleatorio de 6 caracteres (mayúsculas y números)
+        return Math.random().toString(36).substring(2, 8).toUpperCase();
+    }
+
     const handleAddStudent = () => {
-        if(selectedClassId && newStudentName) {
+        if(selectedClassId && newStudentName && newStudentDOB) {
+            const uniqueCode = generateAccessCode();
             actions.addStudent({
                 id: crypto.randomUUID(),
                 name: newStudentName,
                 classroomId: selectedClassId,
-                grade: null
+                grade: null,
+                dob: newStudentDOB,
+                access_code: uniqueCode // Guarda el código generado
             });
             setNewStudentName('');
+            setNewStudentDOB('');
+            alert(`Alumno registrado.\nIMPORTANTE: La contraseña del alumno es: ${uniqueCode}`);
+        } else {
+            alert("Por favor ingresa nombre y fecha de nacimiento.");
         }
     }
 
@@ -611,20 +672,32 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
                 <Card>
                     <h2 className="text-2xl font-bold mb-4 text-white">Gestionar: {currentClass?.name}</h2>
                     
-                    <div className="flex gap-2 mb-6 items-end">
-                        <div className="flex-grow">
-                            <Input label="Nombre del Nuevo Alumno" value={newStudentName} onChange={e => setNewStudentName(e.target.value)} />
+                    <div className="bg-slate-700 p-4 rounded-lg mb-6 border border-slate-600">
+                        <h3 className="font-bold text-sky-400 mb-2">Registrar Nuevo Alumno</h3>
+                        <div className="flex flex-col md:flex-row gap-4 items-end">
+                            <div className="flex-grow w-full">
+                                <Input label="Nombre del Alumno" value={newStudentName} onChange={e => setNewStudentName(e.target.value)} placeholder="Ej: Juan Perez" />
+                            </div>
+                            <div className="w-full md:w-1/3">
+                                <Input label="Fecha de Nacimiento" type="date" value={newStudentDOB} onChange={e => setNewStudentDOB(e.target.value)} />
+                            </div>
+                            <button onClick={handleAddStudent} className="w-full md:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-6 rounded-md h-10 mb-[1px]">
+                                Generar Alta
+                            </button>
                         </div>
-                        <button onClick={handleAddStudent} className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md h-10 mb-[1px]">Agregar</button>
                     </div>
 
                     <div className="space-y-2">
                         {classStudents.map(student => (
-                            <div key={student.id} className="flex items-center justify-between bg-slate-700 p-3 rounded">
+                            <div key={student.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-700 p-3 rounded gap-3">
                                 <div className="flex-grow">
-                                    <span className="font-bold">{student.name}</span>
+                                    <span className="font-bold block">{student.name}</span>
+                                    <span className="text-xs text-slate-400">
+                                        Nacimiento: {student.dob || 'N/A'} | 
+                                        Contraseña: <span className="text-yellow-400 font-mono font-bold bg-slate-800 px-1 rounded ml-1 select-all">{student.access_code || 'Sin código'}</span>
+                                    </span>
                                 </div>
-                                <div className="flex items-center gap-4">
+                                <div className="flex items-center gap-4 justify-end">
                                      <div className="flex flex-col items-end">
                                         <span className="text-xs text-slate-400">Calificación</span>
                                         <input 

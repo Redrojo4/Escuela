@@ -46,5 +46,7 @@ export interface EnrolledStudent {
     id: string;
     name: string;
     classroomId: string;
-    grade: number | null; 
+    grade: number | null;
+    dob?: string;          // Fecha de nacimiento
+    access_code?: string;  // Contraseña única generada
 }
