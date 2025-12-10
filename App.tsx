@@ -15,6 +15,7 @@ const UserIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-
 const ClassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z" /></svg>;
 const CalcIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a2 2 0 00-2 2v12a2 2 0 002 2h8a2 2 0 002-2V4a2 2 0 00-2-2H6zm1 2a1 1 0 000 2h6a1 1 0 100-2H7zm6 7a1 1 0 011 1v3a1 1 0 11-2 0v-3a1 1 0 011-1zm-3 3a1 1 0 100 2h.01a1 1 0 100-2H10zm-4 1a1 1 0 011-1h.01a1 1 0 110 2H7a1 1 0 01-1-1zm1-4a1 1 0 100 2h.01a1 1 0 100-2H7zm2 1a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zm4-4a1 1 0 100 2h.01a1 1 0 100-2H13zM9 9a1 1 0 011-1h.01a1 1 0 110 2H10a1 1 0 01-1-1zM7 8a1 1 0 000 2h.01a1 1 0 000-2H7z" clipRule="evenodd" /></svg>;
 const KeyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 000-2z" clipRule="evenodd" /></svg>;
+const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>;
 
 const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valueClassName?: string }> = ({ title, value, unit, valueClassName = 'text-sky-400' }) => (
     <div className="flex flex-col items-center justify-center p-4 bg-slate-700 rounded-lg text-center">
@@ -399,7 +400,129 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
 
 // --- NEW APP COMPONENTS ---
 
-const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: string, onReset: () => void }> = ({ onLogin, error, onReset }) => {
+// 1. Landing Screen
+const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: () => void }> = ({ onSelectStudent, onSelectTeacher }) => {
+    return (
+        <div className="flex flex-col items-center justify-center pt-20">
+            <h1 className="text-4xl font-extrabold text-white mb-2 text-center">Bienvenido</h1>
+            <p className="text-slate-400 mb-12 text-center">Sistema de Evaluación Secundaria Num. 5</p>
+            
+            <div className="flex flex-col sm:flex-row gap-6 w-full max-w-2xl px-4">
+                <button 
+                    onClick={onSelectStudent}
+                    className="flex-1 bg-gradient-to-br from-green-600 to-green-800 hover:from-green-500 hover:to-green-700 text-white p-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center justify-center gap-4 group"
+                >
+                    <div className="bg-white/20 p-4 rounded-full group-hover:bg-white/30 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                        </svg>
+                    </div>
+                    <span className="text-2xl font-bold">Soy Alumno</span>
+                    <span className="text-green-200 text-sm">Consultar calificaciones</span>
+                </button>
+
+                <button 
+                    onClick={onSelectTeacher}
+                    className="flex-1 bg-gradient-to-br from-sky-600 to-sky-800 hover:from-sky-500 hover:to-sky-700 text-white p-8 rounded-xl shadow-lg transition-transform transform hover:scale-105 flex flex-col items-center justify-center gap-4 group"
+                >
+                     <div className="bg-white/20 p-4 rounded-full group-hover:bg-white/30 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                        </svg>
+                    </div>
+                    <span className="text-2xl font-bold">Soy Docente</span>
+                     <span className="text-sky-200 text-sm">Administrar y evaluar</span>
+                </button>
+            </div>
+        </div>
+    );
+};
+
+// 2. Student Portal
+const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStudent[], onBack: () => void }> = ({ classrooms, students, onBack }) => {
+    const [selectedClassId, setSelectedClassId] = useState('');
+    const [selectedStudentId, setSelectedStudentId] = useState('');
+    
+    // Derived state
+    const filteredStudents = students.filter(s => s.classroomId === selectedClassId);
+    const selectedStudent = students.find(s => s.id === selectedStudentId);
+    const currentClass = classrooms.find(c => c.id === selectedClassId);
+
+    return (
+        <div className="flex flex-col items-center pt-10 px-4">
+             <button onClick={onBack} className="self-start mb-6 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+                &larr; Volver al Inicio
+            </button>
+            
+            <Card className="w-full max-w-md">
+                <h2 className="text-2xl font-bold mb-6 text-center text-white">Consulta de Alumnos</h2>
+                
+                <div className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">1. Selecciona tu Grupo</label>
+                        <select 
+                            className="w-full bg-slate-700 border border-slate-600 rounded-md py-3 px-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                            value={selectedClassId}
+                            onChange={(e) => {
+                                setSelectedClassId(e.target.value);
+                                setSelectedStudentId(''); // Reset student when class changes
+                            }}
+                        >
+                            <option value="">-- Selecciona grupo --</option>
+                            {classrooms.map(c => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {selectedClassId && (
+                         <div className="animate-fade-in">
+                            <label className="block text-sm font-medium text-slate-400 mb-1">2. Busca tu Nombre</label>
+                            <select 
+                                className="w-full bg-slate-700 border border-slate-600 rounded-md py-3 px-3 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
+                                value={selectedStudentId}
+                                onChange={(e) => setSelectedStudentId(e.target.value)}
+                            >
+                                <option value="">-- Selecciona tu nombre --</option>
+                                {filteredStudents.map(s => (
+                                    <option key={s.id} value={s.id}>{s.name}</option>
+                                ))}
+                            </select>
+                            {filteredStudents.length === 0 && <p className="text-xs text-yellow-400 mt-2">No hay alumnos registrados en este grupo.</p>}
+                        </div>
+                    )}
+                </div>
+
+                {selectedStudent && currentClass && (
+                    <div className="mt-8 p-6 bg-slate-900 rounded-xl border border-slate-700 text-center animate-fade-in">
+                        <div className="mb-4">
+                            <p className="text-sm text-slate-400 uppercase tracking-wider">Alumno</p>
+                            <h3 className="text-xl font-bold text-white">{selectedStudent.name}</h3>
+                        </div>
+                        
+                        <div className="mb-6">
+                             <p className="text-sm text-slate-400 uppercase tracking-wider">Grupo</p>
+                             <p className="text-lg text-sky-400 font-medium">{currentClass.name}</p>
+                        </div>
+
+                        <div className="pt-4 border-t border-slate-800">
+                             <p className="text-sm text-slate-400 uppercase tracking-wider mb-2">Calificación Final</p>
+                             {selectedStudent.grade !== null ? (
+                                <span className={`text-4xl font-extrabold ${selectedStudent.grade >= 60 ? 'text-green-500' : 'text-red-500'}`}>
+                                    {selectedStudent.grade}
+                                </span>
+                             ) : (
+                                 <span className="text-xl text-slate-500 italic">No asignada</span>
+                             )}
+                        </div>
+                    </div>
+                )}
+            </Card>
+        </div>
+    );
+}
+
+const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: string, onReset: () => void, onBack: () => void }> = ({ onLogin, error, onReset, onBack }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -410,8 +533,11 @@ const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: st
 
     return (
         <div className="flex flex-col items-center justify-center pt-10">
+            <button onClick={onBack} className="self-start ml-4 sm:ml-0 md:absolute md:top-24 md:left-10 mb-6 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
+                &larr; Volver al Inicio
+            </button>
             <Card className="w-full max-w-md">
-                <h2 className="text-2xl font-bold mb-6 text-center text-white">Iniciar Sesión</h2>
+                <h2 className="text-2xl font-bold mb-6 text-center text-white">Acceso Docentes</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <Input label="Usuario" value={username} onChange={e => setUsername(e.target.value)} />
                     <Input label="Contraseña" type="password" value={password} onChange={e => setPassword(e.target.value)} />
@@ -430,7 +556,7 @@ const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: st
                         onClick={onReset} 
                         className="text-xs text-slate-500 underline hover:text-sky-400 transition-colors"
                     >
-                        Restaurar Datos de Prueba (Si no puedes entrar)
+                        Restaurar Datos de Prueba
                     </button>
                 </div>
             </Card>
@@ -754,6 +880,8 @@ const INITIAL_USERS: User[] = [
   { id: '2', username: 'docente', password: 'docente123', name: 'Maestro Ejemplar', role: 'docente' }
 ];
 
+type ViewMode = 'landing' | 'login' | 'student';
+
 const App: React.FC = () => {
     // Database State
     const [users, setUsers] = useState<User[]>(() => {
@@ -771,6 +899,7 @@ const App: React.FC = () => {
 
     // Session State
     const [currentUser, setCurrentUser] = useState<User | null>(null);
+    const [viewMode, setViewMode] = useState<ViewMode>('landing');
     const [loginError, setLoginError] = useState('');
 
     // Persistence Effects
@@ -792,6 +921,7 @@ const App: React.FC = () => {
     const handleLogout = () => {
         setCurrentUser(null);
         setLoginError('');
+        setViewMode('landing');
     }
 
     const handleResetData = () => {
@@ -819,7 +949,8 @@ const App: React.FC = () => {
             <div className="max-w-6xl mx-auto">
                 <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl flex items-center gap-2">
+                             <HomeIcon />
                              Sistema Escolar
                         </h1>
                         <p className="mt-1 text-lg text-slate-400">Secundaria Num. 5</p>
@@ -838,7 +969,29 @@ const App: React.FC = () => {
                 </header>
                 
                 <main>
-                    {!currentUser && <LoginScreen onLogin={handleLogin} error={loginError} onReset={handleResetData} />}
+                    {!currentUser && viewMode === 'landing' && (
+                        <LandingScreen 
+                            onSelectStudent={() => setViewMode('student')}
+                            onSelectTeacher={() => setViewMode('login')}
+                        />
+                    )}
+
+                    {!currentUser && viewMode === 'student' && (
+                        <StudentPortal 
+                            classrooms={classrooms}
+                            students={students}
+                            onBack={() => setViewMode('landing')}
+                        />
+                    )}
+
+                    {!currentUser && viewMode === 'login' && (
+                        <LoginScreen 
+                            onLogin={handleLogin} 
+                            error={loginError} 
+                            onReset={handleResetData} 
+                            onBack={() => setViewMode('landing')}
+                        />
+                    )}
                     
                     {currentUser?.role === 'admin' && (
                         <AdminDashboard 
