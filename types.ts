@@ -24,3 +24,27 @@ export interface Student {
   id: string;
   grade: string;
 }
+
+// --- SYSTEM TYPES ---
+export type Role = 'admin' | 'docente';
+
+export interface User {
+  id: string;
+  username: string;
+  password?: string;
+  name: string;
+  role: Role;
+}
+
+export interface Classroom {
+  id: string;
+  name: string;
+  teacherId: string;
+}
+
+export interface EnrolledStudent {
+    id: string;
+    name: string;
+    classroomId: string;
+    grade: number | null; 
+}
