@@ -240,6 +240,13 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
                             Guardar en Boleta del Alumno
                         </button>
                     )}
+                    {enrolledStudents && !onSaveGrade && (
+                        <div className="text-center p-2 bg-yellow-900/30 border border-yellow-700/50 rounded mt-2">
+                             <p className="text-xs text-yellow-400">
+                                <span className="font-bold">Modo Solo Lectura:</span> Solo el personal administrativo puede guardar la calificación final en el sistema.
+                            </p>
+                        </div>
+                    )}
                 </div>
             )}
         </Card>
@@ -845,7 +852,7 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
                 case 'attendance':
                     return <AttendanceCalculator forcedStudentCount={classStudents.length} />;
                 case 'student':
-                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updateGrade} />;
+                    return <StudentAverageCalculator enrolledStudents={classStudents} />;
                 case 'group':
                     return <GroupAverageCalculator enrolledStudents={classStudents} />;
                 default:
