@@ -4,8 +4,9 @@ import { TabOption, AttendanceResult, GroupAverageResult, Criterion, Student, Us
 import { Card } from './components/Card';
 import { Input } from './components/Input';
 import { Tab } from './components/Tab';
+import { db } from './database';
 
-// SVG Icons
+// SVG Icons (Sin cambios, se mantienen igual)
 const AttendanceIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" /></svg>;
 const StudentIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" /></svg>;
 const GroupIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zm-1.5 5.5a3 3 0 00-3 0V13a1 1 0 00-1 1v1a1 1 0 001 1h3a1 1 0 001-1v-1a1 1 0 00-1-1v-.5zM15.5 6a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm-3 5.5a3 3 0 013-3h1a3 3 0 013 3v.5a1 1 0 01-1 1v1a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a1 1 0 01-1-1V11.5z" /></svg>;
@@ -26,7 +27,8 @@ const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valu
     </div>
 );
 
-// --- CALCULATOR COMPONENTS ---
+// --- CALCULATOR COMPONENTS (Sin cambios mayores, solo visuales) ---
+// ... (Se mantienen igual AttendanceCalculator, StudentAverageCalculator, GroupAverageCalculator)
 
 interface AttendanceCalculatorProps {
     forcedStudentCount?: number;
@@ -39,7 +41,6 @@ const AttendanceCalculator: React.FC<AttendanceCalculatorProps> = ({ forcedStude
     const [result, setResult] = useState<AttendanceResult | null>(null);
     const [error, setError] = useState<string>('');
 
-    // If forcedStudentCount provided (from DB), update the state and keep it in sync
     useEffect(() => {
         if (forcedStudentCount !== undefined) {
             setNumStudents(forcedStudentCount.toString());
@@ -58,7 +59,7 @@ const AttendanceCalculator: React.FC<AttendanceCalculatorProps> = ({ forcedStude
         }
 
         if (students <= 0 || sessions <= 0 || absences < 0) {
-            setError('Los valores deben ser positivos. Las faltas no pueden ser negativas.');
+            setError('Los valores deben ser positivos.');
             setResult(null);
             return;
         }
@@ -146,7 +147,7 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
         }
         
         if(scores.some(s => s < 0)) {
-            setError('Los puntajes de los criterios no pueden ser negativos.');
+            setError('Los puntajes no pueden ser negativos.');
             setResult(null);
             return;
         }
@@ -167,7 +168,6 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
         if (result !== null && selectedStudentId && onSaveGrade) {
             onSaveGrade(selectedStudentId, result);
             alert("Calificación guardada correctamente.");
-            // Reset for next student?
             setResult(null);
             setCriteria([{ id: crypto.randomUUID(), name: '', score: '' }]);
         } else if (!selectedStudentId) {
@@ -253,19 +253,15 @@ interface GroupAverageCalculatorProps {
 }
 
 const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolledStudents }) => {
-    // If used in standalone mode, we manage a local list of students.
-    // If enrolledStudents is provided, we use that instead.
-    
     const [manualStudents, setManualStudents] = useState<Student[]>([{ id: crypto.randomUUID(), grade: '' }]);
     const [result, setResult] = useState<GroupAverageResult | null>(null);
     const [error, setError] = useState<string>('');
 
-    // If real data is passed, calculate automatically on mount/update
     useEffect(() => {
         if (enrolledStudents && enrolledStudents.length > 0) {
             calculateStats(enrolledStudents.map(s => s.grade ?? 0));
         } else if (enrolledStudents && enrolledStudents.length === 0) {
-            setResult(null); // No students
+            setResult(null);
         }
     }, [enrolledStudents]);
 
@@ -321,9 +317,7 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
     return (
         <Card>
             <h2 className="text-xl font-bold mb-4 text-sky-400">Estadísticas del Grupo</h2>
-            
             {enrolledStudents ? (
-                // --- LINKED MODE ---
                 <div className="space-y-4">
                      <div className="max-h-60 overflow-y-auto bg-slate-900 rounded p-4 border border-slate-700">
                         <table className="w-full text-left text-sm">
@@ -350,7 +344,6 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
                     </div>
                 </div>
             ) : (
-                // --- MANUAL MODE ---
                 <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                      {manualStudents.map((student, index) => (
                         <div key={student.id} className="grid grid-cols-12 gap-2 items-center">
@@ -400,10 +393,9 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
 
 // --- NEW APP COMPONENTS ---
 
-// 1. Landing Screen
 const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: () => void }> = ({ onSelectStudent, onSelectTeacher }) => {
     return (
-        <div className="flex flex-col items-center justify-center pt-20">
+        <div className="flex flex-col items-center justify-center pt-20 animate-fade-in">
             <h1 className="text-4xl font-extrabold text-white mb-2 text-center">Bienvenido</h1>
             <p className="text-slate-400 mb-12 text-center">Sistema de Evaluación Secundaria Num. 5</p>
             
@@ -438,7 +430,6 @@ const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: ()
     );
 };
 
-// 2. Student Portal
 const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStudent[], onBack: () => void }> = ({ classrooms, students, onBack }) => {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
@@ -449,7 +440,7 @@ const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStude
     const currentClass = classrooms.find(c => c.id === selectedClassId);
 
     return (
-        <div className="flex flex-col items-center pt-10 px-4">
+        <div className="flex flex-col items-center pt-10 px-4 animate-fade-in">
              <button onClick={onBack} className="self-start mb-6 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
                 &larr; Volver al Inicio
             </button>
@@ -532,7 +523,7 @@ const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: st
     }
 
     return (
-        <div className="flex flex-col items-center justify-center pt-10">
+        <div className="flex flex-col items-center justify-center pt-10 animate-fade-in">
             <button onClick={onBack} className="self-start ml-4 sm:ml-0 md:absolute md:top-24 md:left-10 mb-6 text-slate-400 hover:text-white flex items-center gap-2 transition-colors">
                 &larr; Volver al Inicio
             </button>
@@ -575,14 +566,8 @@ interface AdminDashboardProps {
 
 const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, students, actions }) => {
     const [tab, setTab] = useState<'users' | 'classes'>('users');
-    
-    // User Form State
     const [newUser, setNewUser] = useState({ name: '', username: '', password: '', role: 'docente' as Role });
-    
-    // Class Form State
     const [newClass, setNewClass] = useState({ name: '', teacherId: '' });
-
-    // Selected Class for management
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
     const [newStudentName, setNewStudentName] = useState('');
 
@@ -763,6 +748,7 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
 }
 
 // --- TEACHER DASHBOARD ---
+// (No changes needed in layout, just re-using the async actions passed from parent)
 
 interface TeacherDashboardProps {
     currentUser: User;
@@ -861,7 +847,6 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
                          <button onClick={() => setSelectedClassId(null)} className="mb-4 text-sky-400 hover:text-sky-300 flex items-center gap-1 mx-auto">
                             &uarr; Cerrar Manual
                         </button>
-                        {/* Re-using the manual layout logic inside a wrapper or just simple tabs again */}
                         <div className="max-w-3xl mx-auto">
                             <StudentAverageCalculator />
                         </div>
@@ -874,40 +859,40 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
 
 // --- MAIN APP ---
 
-// Initial Data for reset
-const INITIAL_USERS: User[] = [
-  { id: '1', username: 'admin', password: 'admin123', name: 'Director Principal', role: 'admin' },
-  { id: '2', username: 'docente', password: 'docente123', name: 'Maestro Ejemplar', role: 'docente' }
-];
-
 type ViewMode = 'landing' | 'login' | 'student';
 
 const App: React.FC = () => {
-    // Database State
-    const [users, setUsers] = useState<User[]>(() => {
-        const saved = localStorage.getItem('school_users');
-        return saved ? JSON.parse(saved) : INITIAL_USERS;
-    });
-    const [classrooms, setClassrooms] = useState<Classroom[]>(() => {
-        const saved = localStorage.getItem('school_classrooms');
-        return saved ? JSON.parse(saved) : [];
-    });
-    const [students, setStudents] = useState<EnrolledStudent[]>(() => {
-        const saved = localStorage.getItem('school_students');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [users, setUsers] = useState<User[]>([]);
+    const [classrooms, setClassrooms] = useState<Classroom[]>([]);
+    const [students, setStudents] = useState<EnrolledStudent[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
 
-    // Session State
     const [currentUser, setCurrentUser] = useState<User | null>(null);
     const [viewMode, setViewMode] = useState<ViewMode>('landing');
     const [loginError, setLoginError] = useState('');
 
-    // Persistence Effects
-    useEffect(() => localStorage.setItem('school_users', JSON.stringify(users)), [users]);
-    useEffect(() => localStorage.setItem('school_classrooms', JSON.stringify(classrooms)), [classrooms]);
-    useEffect(() => localStorage.setItem('school_students', JSON.stringify(students)), [students]);
+    // Load Data on Mount
+    useEffect(() => {
+        const loadData = async () => {
+            setIsLoading(true);
+            try {
+                const [u, c, s] = await Promise.all([
+                    db.getUsers(),
+                    db.getClassrooms(),
+                    db.getStudents()
+                ]);
+                setUsers(u);
+                setClassrooms(c);
+                setStudents(s);
+            } catch(e) {
+                console.error("Error loading DB", e);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        loadData();
+    }, []);
 
-    // Actions
     const handleLogin = (u: string, p: string) => {
         const user = users.find(user => user.username === u && user.password === p);
         if (user) {
@@ -924,25 +909,50 @@ const App: React.FC = () => {
         setViewMode('landing');
     }
 
-    const handleResetData = () => {
+    const handleResetData = async () => {
         if(window.confirm("¿Estás seguro de restaurar los datos de prueba? Se borrarán todos los usuarios y salones creados.")){
-            localStorage.removeItem('school_users');
-            localStorage.removeItem('school_classrooms');
-            localStorage.removeItem('school_students');
+            setIsLoading(true);
+            await db.resetDatabase();
             window.location.reload();
         }
     }
 
-    const dbActions = {
-        addUser: (user: User) => setUsers([...users, user]),
-        deleteUser: (id: string) => setUsers(users.filter(u => u.id !== id)),
-        resetPassword: (id: string, newPass: string) => setUsers(users.map(u => u.id === id ? { ...u, password: newPass } : u)),
-        addClassroom: (cls: Classroom) => setClassrooms([...classrooms, cls]),
-        deleteClassroom: (id: string) => setClassrooms(classrooms.filter(c => c.id !== id)),
-        addStudent: (student: EnrolledStudent) => setStudents([...students, student]),
-        deleteStudent: (id: string) => setStudents(students.filter(s => s.id !== id)),
-        updateGrade: (id: string, grade: number | null) => setStudents(students.map(s => s.id === id ? { ...s, grade } : s))
+    // Acciones Wrapper Asíncronas
+    const createAsyncAction = (action: (...args: any[]) => Promise<any>, updateState: (data: any) => void) => {
+        return async (...args: any[]) => {
+            setIsLoading(true);
+            try {
+                const newData = await action(...args);
+                updateState(newData);
+            } finally {
+                setIsLoading(false);
+            }
+        };
     };
+
+    const dbActions = {
+        addUser: createAsyncAction((u) => db.addUser(u), setUsers),
+        deleteUser: createAsyncAction((id) => db.deleteUser(id), setUsers),
+        resetPassword: createAsyncAction((id, pass) => db.updateUserPassword(id, pass), setUsers),
+        
+        addClassroom: createAsyncAction((c) => db.addClassroom(c), setClassrooms),
+        deleteClassroom: createAsyncAction((id) => db.deleteClassroom(id), setClassrooms),
+        
+        addStudent: createAsyncAction((s) => db.addStudent(s), setStudents),
+        deleteStudent: createAsyncAction((id) => db.deleteStudent(id), setStudents),
+        updateGrade: createAsyncAction((id, g) => db.updateStudentGrade(id, g), setStudents)
+    };
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="w-16 h-16 border-4 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                    <h2 className="text-xl text-white font-bold">Cargando Sistema...</h2>
+                </div>
+            </div>
+        )
+    }
 
     return (
         <div className="min-h-screen bg-slate-900 text-slate-100 p-4 sm:p-6 lg:p-8">
