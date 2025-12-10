@@ -120,6 +120,10 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
     const [error, setError] = useState<string>('');
     const [selectedStudentId, setSelectedStudentId] = useState<string>('');
 
+    // Verificar si el alumno seleccionado ya tiene calificación
+    const selectedStudent = enrolledStudents?.find(s => s.id === selectedStudentId);
+    const hasGrade = selectedStudent?.grade !== null && selectedStudent?.grade !== undefined;
+
     const handleCriteriaChange = (id: string, field: 'name' | 'score', value: string) => {
         setCriteria(criteria.map(c => c.id === id ? { ...c, [field]: value } : c));
     };
@@ -163,11 +167,13 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
     };
 
     const handleSave = () => {
-        if (result !== null && selectedStudentId && onSaveGrade) {
+        if (result !== null && selectedStudentId && onSaveGrade && !hasGrade) {
             onSaveGrade(selectedStudentId, result);
             alert("Calificación guardada correctamente.");
             setResult(null);
             setCriteria([{ id: crypto.randomUUID(), name: '', score: '' }]);
+        } else if (hasGrade) {
+            setError("Este alumno ya tiene una calificación registrada.");
         } else if (!selectedStudentId) {
             setError("Debes seleccionar un alumno para guardar.");
         }
@@ -229,7 +235,7 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
                     <div className="grid grid-cols-1 gap-4 mb-4">
                         <ResultDisplay title="Calificación Calculada" value={result.toFixed(0)} unit="/ 100" />
                     </div>
-                    {enrolledStudents && onSaveGrade && (
+                    {enrolledStudents && onSaveGrade && !hasGrade && (
                         <button 
                             onClick={handleSave}
                             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
@@ -240,10 +246,11 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
                             Guardar en Boleta del Alumno
                         </button>
                     )}
-                    {enrolledStudents && !onSaveGrade && (
-                        <div className="text-center p-2 bg-yellow-900/30 border border-yellow-700/50 rounded mt-2">
-                             <p className="text-xs text-yellow-400">
-                                <span className="font-bold">Modo Solo Lectura:</span> Solo el personal administrativo puede guardar la calificación final en el sistema.
+                    {enrolledStudents && hasGrade && (
+                        <div className="text-center p-2 bg-red-900/30 border border-red-700/50 rounded mt-2">
+                             <p className="text-sm text-red-400 flex items-center justify-center gap-2">
+                                <LockIcon />
+                                <span className="font-bold">Calificación bloqueada:</span> Este alumno ya tiene una calificación registrada ({selectedStudent?.grade}).
                             </p>
                         </div>
                     )}
@@ -852,7 +859,8 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
                 case 'attendance':
                     return <AttendanceCalculator forcedStudentCount={classStudents.length} />;
                 case 'student':
-                    return <StudentAverageCalculator enrolledStudents={classStudents} />;
+                    // RESTORED: Pass actions.updateGrade so the teacher can save.
+                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updateGrade} />;
                 case 'group':
                     return <GroupAverageCalculator enrolledStudents={classStudents} />;
                 default:
