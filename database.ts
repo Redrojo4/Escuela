@@ -8,7 +8,15 @@ import { User, Classroom, EnrolledStudent } from './types';
 // ==============================================================================
 const SUPABASE_URL = 'https://qnmpbmtpbhkjcapdhiik.supabase.co';
 const SUPABASE_KEY = 'process.env.SUPABASE_KEY';
-// ==============================================================================
+
+// ------------------------------------------------------------------------------
+// 📋 REQUERIMIENTOS DE BASE DE DATOS (SQL EDITOR)
+// Ejecuta este comando en Supabase para asegurar que la tabla 'students' 
+// tenga la columna para los parciales:
+// 
+// alter table students 
+// add column if not exists "partialGrades" jsonb default '[null, null, null, null, null]';
+// ------------------------------------------------------------------------------
 
 // Inicializamos el cliente. Si no hay claves configuradas, fallará elegantemente.
 const supabase = (SUPABASE_URL !== 'https://qnmpbmtpbhkjcapdhiik.supabase.co') 
@@ -125,23 +133,44 @@ class SchoolDatabase {
 
     // --- STUDENTS ---
     async getStudents(): Promise<EnrolledStudent[]> {
-        if (!supabase) return JSON.parse(localStorage.getItem(LOCAL_KEYS.STUDENTS) || '[]');
+        if (!supabase) {
+            const data = JSON.parse(localStorage.getItem(LOCAL_KEYS.STUDENTS) || '[]');
+            // Asegurar compatibilidad hacia atrás si faltan partialGrades
+            return data.map((s: any) => ({
+                ...s,
+                partialGrades: s.partialGrades || [null, null, null, null, null]
+            }));
+        }
 
         const { data, error } = await supabase.from('students').select('*');
         this.handleError(error);
-        return data || [];
+        
+        // Normalización si los datos vienen vacíos
+        if(data) {
+             return data.map((s: any) => ({
+                ...s,
+                partialGrades: s.partialGrades || [null, null, null, null, null]
+            }));
+        }
+        return [];
     }
 
     async addStudent(student: EnrolledStudent): Promise<EnrolledStudent[]> {
+        // Asegurar que inicialice con 5 parciales vacíos
+        const newStudent = {
+            ...student,
+            partialGrades: [null, null, null, null, null],
+            grade: null
+        };
+
         if (!supabase) {
             const current = await this.getStudents();
-            const updated = [...current, student];
+            const updated = [...current, newStudent];
             localStorage.setItem(LOCAL_KEYS.STUDENTS, JSON.stringify(updated));
             return updated;
         }
 
-        // Supabase ignorará los campos si no existen en la tabla, pero es mejor que los tengas creados.
-        const { error } = await supabase.from('students').insert(student);
+        const { error } = await supabase.from('students').insert(newStudent);
         this.handleError(error);
         return this.getStudents();
     }
@@ -158,16 +187,51 @@ class SchoolDatabase {
         return this.getStudents();
     }
 
-    async updateStudentGrade(id: string, grade: number | null): Promise<EnrolledStudent[]> {
+    // Nuevo método para actualizar TODAS las calificaciones de un golpe (Batch Update)
+    async updateStudentGrades(id: string, newPartials: (number | null)[]): Promise<EnrolledStudent[]> {
+        const students = await this.getStudents();
+        const student = students.find(s => s.id === id);
+
+        if (!student) return students;
+
+        // Calcular nuevo promedio final
+        const takenPartials = newPartials.filter(g => g !== null && g !== undefined && g.toString() !== '') as number[];
+        const average = takenPartials.length > 0 
+            ? Math.round(takenPartials.reduce((a, b) => a + b, 0) / takenPartials.length)
+            : null;
+
+        const updatedStudent = { ...student, partialGrades: newPartials, grade: average };
+
         if (!supabase) {
-            const current = (await this.getStudents()).map(s => s.id === id ? {...s, grade} : s);
-            localStorage.setItem(LOCAL_KEYS.STUDENTS, JSON.stringify(current));
-            return current;
+            const updatedList = students.map(s => s.id === id ? updatedStudent : s);
+            localStorage.setItem(LOCAL_KEYS.STUDENTS, JSON.stringify(updatedList));
+            return updatedList;
         }
 
-        const { error } = await supabase.from('students').update({ grade }).eq('id', id);
+        const { error } = await supabase.from('students').update({ 
+            partialGrades: newPartials, 
+            grade: average 
+        }).eq('id', id);
+        
         this.handleError(error);
         return this.getStudents();
+    }
+
+    // Método legacy para actualizar un solo parcial (usado por el maestro si evalua 1 por 1)
+    async updateStudentPartialGrade(id: string, partialIndex: number, grade: number): Promise<EnrolledStudent[]> {
+        const students = await this.getStudents();
+        const student = students.find(s => s.id === id);
+        if (!student) return students;
+
+        const newPartials = [...(student.partialGrades || [null, null, null, null, null])];
+        newPartials[partialIndex] = grade;
+        
+        return this.updateStudentGrades(id, newPartials);
+    }
+    
+    // Método legacy
+    async updateStudentGrade(id: string, grade: number | null): Promise<EnrolledStudent[]> {
+         return this.updateStudentPartialGrade(id, 0, grade || 0);
     }
 
     async resetDatabase() {

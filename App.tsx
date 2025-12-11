@@ -17,6 +17,7 @@ const ClassIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w
 const KeyIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 000-2z" clipRule="evenodd" /></svg>;
 const HomeIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" /></svg>;
 const LockIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" /></svg>;
+const CheckIcon = () => <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" /></svg>;
 
 const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valueClassName?: string }> = ({ title, value, unit, valueClassName = 'text-sky-400' }) => (
     <div className="flex flex-col items-center justify-center p-4 bg-slate-700 rounded-lg text-center">
@@ -26,6 +27,146 @@ const ResultDisplay: React.FC<{ title: string; value: string; unit: string; valu
         </span>
     </div>
 );
+
+const GradesTable: React.FC<{ student: EnrolledStudent }> = ({ student }) => {
+    const partials = student.partialGrades || [null, null, null, null, null];
+    
+    return (
+        <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left text-slate-300">
+                <thead className="text-xs text-slate-400 uppercase bg-slate-700">
+                    <tr>
+                        <th className="px-3 py-2">P1</th>
+                        <th className="px-3 py-2">P2</th>
+                        <th className="px-3 py-2">P3</th>
+                        <th className="px-3 py-2">P4</th>
+                        <th className="px-3 py-2">P5</th>
+                        <th className="px-3 py-2 text-right">Promedio</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr className="bg-slate-800 border-b border-slate-700">
+                        {partials.map((grade, idx) => (
+                            <td key={idx} className="px-3 py-2 font-medium">
+                                {grade !== null ? (
+                                    <span className={grade < 60 ? 'text-red-400' : 'text-green-400'}>{grade}</span>
+                                ) : '-'}
+                            </td>
+                        ))}
+                        <td className="px-3 py-2 text-right font-bold text-white">
+                            {student.grade !== null ? student.grade : '-'}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+// Componente inteligente para editar toda la fila y guardar con un solo botón
+const StudentEditorRow: React.FC<{ 
+    student: EnrolledStudent, 
+    onSaveBatch: (id: string, grades: (number|null)[]) => void,
+    onDelete: (id: string) => void
+}> = ({ student, onSaveBatch, onDelete }) => {
+    // Estado local para los 5 parciales
+    const [localGrades, setLocalGrades] = useState<(number | null)[]>(
+        student.partialGrades || [null, null, null, null, null]
+    );
+    const [hasChanges, setHasChanges] = useState(false);
+
+    // Sincronizar estado local si el prop student cambia (ej. después de guardar o recargar)
+    useEffect(() => {
+        setLocalGrades(student.partialGrades || [null, null, null, null, null]);
+        setHasChanges(false);
+    }, [student.partialGrades]);
+
+    // Calcular promedio preliminar (vista previa)
+    const previewAverage = () => {
+        const taken = localGrades.filter(g => g !== null && g !== undefined && g.toString() !== '') as number[];
+        if (taken.length === 0) return '-';
+        return Math.round(taken.reduce((a, b) => a + b, 0) / taken.length);
+    };
+
+    const handleInputChange = (index: number, value: string) => {
+        const newGrades = [...localGrades];
+        if (value === '') {
+            newGrades[index] = null;
+        } else {
+            const num = parseInt(value, 10);
+            newGrades[index] = isNaN(num) ? null : num;
+        }
+        setLocalGrades(newGrades);
+        setHasChanges(true);
+    };
+
+    const handleSave = () => {
+        onSaveBatch(student.id, localGrades);
+        // El useEffect se encargará de resetear hasChanges cuando llegue la confirmación del padre
+    };
+
+    // Manejar Enter para guardar
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (e.key === 'Enter' && hasChanges) {
+            handleSave();
+        }
+    };
+
+    return (
+        <div className={`flex flex-col p-3 rounded gap-3 transition-colors duration-300 ${hasChanges ? 'bg-slate-800 border border-yellow-500/30' : 'bg-slate-700'}`}>
+            <div className="flex sm:flex-row flex-col justify-between items-start sm:items-center">
+                <div className="flex-grow">
+                    <span className="font-bold block">{student.name}</span>
+                    <span className="text-xs text-slate-400">
+                        Nacimiento: {student.dob || 'N/A'} | 
+                        Contraseña: <span className="text-yellow-400 font-mono font-bold bg-slate-800 px-1 rounded ml-1 select-all">{student.access_code || 'Sin código'}</span>
+                    </span>
+                </div>
+                <div className="flex items-center gap-2 mt-2 sm:mt-0">
+                    <div className={`transition-all duration-300 ${hasChanges ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-4 pointer-events-none'}`}>
+                         <button 
+                            onClick={handleSave} 
+                            className="flex items-center gap-1 bg-green-600 hover:bg-green-500 text-white text-xs font-bold py-1.5 px-3 rounded shadow-lg animate-pulse"
+                            title="Guardar todos los cambios"
+                        >
+                            <CheckIcon />
+                            <span>Listo</span>
+                        </button>
+                    </div>
+                    <button onClick={() => onDelete(student.id)} className="text-red-400 hover:text-red-300 p-1 rounded hover:bg-red-400/10 transition-colors" title="Eliminar Alumno">
+                        <RemoveIcon />
+                    </button>
+                </div>
+            </div>
+            <div className="mt-1 bg-slate-900/50 p-2 rounded border border-slate-700/50">
+                <p className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Editar Calificaciones (1-100):</p>
+                <div className="flex gap-2 text-sm overflow-x-auto items-end pb-1" onKeyDown={handleKeyDown}>
+                    {localGrades.map((g, i) => (
+                        <div key={i} className="flex flex-col items-center min-w-[3rem]">
+                            <label className="text-[10px] text-slate-500 mb-1">P{i+1}</label>
+                            <input 
+                                type="number"
+                                min="0"
+                                max="100"
+                                className={`w-12 bg-slate-800 border border-slate-600 rounded px-1 py-1 text-center text-sm font-bold text-white focus:outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all ${(g ?? 0) < 60 ? 'text-red-400' : 'text-green-400'}`}
+                                value={g ?? ''}
+                                placeholder="-"
+                                onChange={(e) => handleInputChange(i, e.target.value)}
+                            />
+                        </div>
+                    ))}
+                    <div className="flex flex-col items-center ml-2 pl-4 border-l border-slate-600">
+                        <span className="text-[10px] text-slate-500 mb-1">Prom</span>
+                        <div className={`w-12 py-1 text-center font-bold text-white bg-slate-800 rounded border border-transparent ${(typeof previewAverage() === 'number' && (previewAverage() as number) < 60) ? 'text-red-400' : 'text-sky-400'}`}>
+                            {previewAverage()}
+                        </div>
+                    </div>
+                </div>
+                {hasChanges && <p className="text-[10px] text-yellow-500 mt-1 italic text-right">* Cambios pendientes de guardar</p>}
+            </div>
+        </div>
+    );
+};
 
 // --- CALCULATOR COMPONENTS ---
 interface AttendanceCalculatorProps {
@@ -111,7 +252,7 @@ const AttendanceCalculator: React.FC<AttendanceCalculatorProps> = ({ forcedStude
 
 interface StudentAverageCalculatorProps {
     enrolledStudents?: EnrolledStudent[];
-    onSaveGrade?: (studentId: string, grade: number) => void;
+    onSaveGrade?: (studentId: string, partialIndex: number, grade: number) => void;
 }
 
 const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enrolledStudents, onSaveGrade }) => {
@@ -119,10 +260,12 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
     const [result, setResult] = useState<number | null>(null);
     const [error, setError] = useState<string>('');
     const [selectedStudentId, setSelectedStudentId] = useState<string>('');
+    const [selectedPartial, setSelectedPartial] = useState<number>(0); // 0 = Parcial 1, 1 = Parcial 2, etc.
 
-    // Verificar si el alumno seleccionado ya tiene calificación
+    // Verificar si el alumno seleccionado ya tiene calificación en el parcial seleccionado
     const selectedStudent = enrolledStudents?.find(s => s.id === selectedStudentId);
-    const hasGrade = selectedStudent?.grade !== null && selectedStudent?.grade !== undefined;
+    const partials = selectedStudent?.partialGrades || [null, null, null, null, null];
+    const hasGradeInPartial = partials[selectedPartial] !== null;
 
     const handleCriteriaChange = (id: string, field: 'name' | 'score', value: string) => {
         setCriteria(criteria.map(c => c.id === id ? { ...c, [field]: value } : c));
@@ -167,13 +310,13 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
     };
 
     const handleSave = () => {
-        if (result !== null && selectedStudentId && onSaveGrade && !hasGrade) {
-            onSaveGrade(selectedStudentId, result);
-            alert("Calificación guardada correctamente.");
+        if (result !== null && selectedStudentId && onSaveGrade && !hasGradeInPartial) {
+            onSaveGrade(selectedStudentId, selectedPartial, result);
+            alert(`Calificación guardada para el Parcial ${selectedPartial + 1}.`);
             setResult(null);
             setCriteria([{ id: crypto.randomUUID(), name: '', score: '' }]);
-        } else if (hasGrade) {
-            setError("Este alumno ya tiene una calificación registrada.");
+        } else if (hasGradeInPartial) {
+            setError(`El Parcial ${selectedPartial + 1} ya tiene calificación asignada.`);
         } else if (!selectedStudentId) {
             setError("Debes seleccionar un alumno para guardar.");
         }
@@ -181,27 +324,55 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
 
     return (
         <Card>
-            <h2 className="text-xl font-bold mb-4 text-sky-400">Evaluar Alumno</h2>
+            <h2 className="text-xl font-bold mb-4 text-sky-400">Evaluar Alumno por Parcial</h2>
             
             {enrolledStudents && (
-                <div className="mb-6">
-                    <label className="block text-sm font-medium text-slate-400 mb-1">Seleccionar Alumno</label>
-                    <select 
-                        className="w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
-                        value={selectedStudentId}
-                        onChange={(e) => setSelectedStudentId(e.target.value)}
-                    >
-                        <option value="">-- Selecciona un alumno --</option>
-                        {enrolledStudents.map(s => (
-                            <option key={s.id} value={s.id}>
-                                {s.name} {s.grade !== null ? `(Actual: ${s.grade})` : '(Sin Calif.)'}
-                            </option>
-                        ))}
-                    </select>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">1. Alumno</label>
+                        <select 
+                            className="w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            value={selectedStudentId}
+                            onChange={(e) => setSelectedStudentId(e.target.value)}
+                        >
+                            <option value="">-- Selecciona un alumno --</option>
+                            {enrolledStudents.map(s => (
+                                <option key={s.id} value={s.id}>
+                                    {s.name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+                    <div>
+                        <label className="block text-sm font-medium text-slate-400 mb-1">2. Periodo</label>
+                        <select 
+                            className="w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-sky-500"
+                            value={selectedPartial}
+                            onChange={(e) => {
+                                setSelectedPartial(parseInt(e.target.value));
+                                setResult(null);
+                                setError('');
+                            }}
+                        >
+                            <option value="0">Parcial 1</option>
+                            <option value="1">Parcial 2</option>
+                            <option value="2">Parcial 3</option>
+                            <option value="3">Parcial 4</option>
+                            <option value="4">Parcial 5</option>
+                        </select>
+                    </div>
+                </div>
+            )}
+
+            {selectedStudent && (
+                <div className="mb-6 p-4 bg-slate-900 rounded border border-slate-700">
+                    <h3 className="text-sm text-slate-400 mb-2">Boleta Actual de {selectedStudent.name}</h3>
+                    <GradesTable student={selectedStudent} />
                 </div>
             )}
 
             <div className="space-y-4">
+                <h3 className="font-bold text-white mt-4 border-t border-slate-700 pt-4">Calculadora para Parcial {selectedPartial + 1}</h3>
                 {criteria.map((criterion, index) => (
                     <div key={criterion.id} className="grid grid-cols-12 gap-2 items-center">
                         <div className="col-span-6">
@@ -226,16 +397,16 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
                 )}
             </div>
              <button onClick={handleCalculate} className="mt-6 w-full bg-sky-600 hover:bg-sky-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">
-                Calcular Promedio
+                Calcular Promedio Parcial
             </button>
             {error && <p className="mt-4 text-red-400 text-center">{error}</p>}
             
             {result !== null && (
                  <div className="mt-6 p-4 bg-slate-900 rounded-lg border border-sky-900">
                     <div className="grid grid-cols-1 gap-4 mb-4">
-                        <ResultDisplay title="Calificación Calculada" value={result.toFixed(0)} unit="/ 100" />
+                        <ResultDisplay title={`Calificación Parcial ${selectedPartial + 1}`} value={result.toFixed(0)} unit="/ 100" />
                     </div>
-                    {enrolledStudents && onSaveGrade && !hasGrade && (
+                    {enrolledStudents && onSaveGrade && !hasGradeInPartial && (
                         <button 
                             onClick={handleSave}
                             className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 flex items-center justify-center gap-2"
@@ -243,14 +414,14 @@ const StudentAverageCalculator: React.FC<StudentAverageCalculatorProps> = ({ enr
                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                 <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                             </svg>
-                            Guardar en Boleta del Alumno
+                            Guardar en Parcial {selectedPartial + 1}
                         </button>
                     )}
-                    {enrolledStudents && hasGrade && (
+                    {enrolledStudents && hasGradeInPartial && (
                         <div className="text-center p-2 bg-red-900/30 border border-red-700/50 rounded mt-2">
                              <p className="text-sm text-red-400 flex items-center justify-center gap-2">
                                 <LockIcon />
-                                <span className="font-bold">Calificación bloqueada:</span> Este alumno ya tiene una calificación registrada ({selectedStudent?.grade}).
+                                <span className="font-bold">Parcial Bloqueado:</span> Ya existe calificación ({partials[selectedPartial]}).
                             </p>
                         </div>
                     )}
@@ -271,6 +442,7 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
 
     useEffect(() => {
         if (enrolledStudents && enrolledStudents.length > 0) {
+            // Usamos el promedio final almacenado en 'grade'
             calculateStats(enrolledStudents.map(s => s.grade ?? 0));
         } else if (enrolledStudents && enrolledStudents.length === 0) {
             setResult(null);
@@ -336,7 +508,7 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
                             <thead>
                                 <tr className="border-b border-slate-700 text-slate-400">
                                     <th className="pb-2">Alumno</th>
-                                    <th className="pb-2 text-right">Calificación</th>
+                                    <th className="pb-2 text-right">Promedio Final</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -559,14 +731,8 @@ const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStude
                         </div>
 
                         <div className="pt-4 border-t border-slate-800">
-                             <p className="text-sm text-slate-400 uppercase tracking-wider mb-2">Calificación Final</p>
-                             {selectedStudent.grade !== null ? (
-                                <span className={`text-4xl font-extrabold ${selectedStudent.grade >= 60 ? 'text-green-500' : 'text-red-500'}`}>
-                                    {selectedStudent.grade}
-                                </span>
-                             ) : (
-                                 <span className="text-xl text-slate-500 italic">No asignada</span>
-                             )}
+                             <p className="text-sm text-slate-400 uppercase tracking-wider mb-2">Boleta de Calificaciones</p>
+                             <GradesTable student={selectedStudent} />
                         </div>
                     </div>
                 )}
@@ -664,7 +830,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
                 classroomId: selectedClassId,
                 grade: null,
                 dob: newStudentDOB,
-                access_code: uniqueCode // Guarda el código generado
+                access_code: uniqueCode, // Guarda el código generado
+                partialGrades: [null, null, null, null, null] // Inicializa vacíos
             });
             setNewStudentName('');
             setNewStudentDOB('');
@@ -703,30 +870,12 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, stud
 
                     <div className="space-y-2">
                         {classStudents.map(student => (
-                            <div key={student.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-slate-700 p-3 rounded gap-3">
-                                <div className="flex-grow">
-                                    <span className="font-bold block">{student.name}</span>
-                                    <span className="text-xs text-slate-400">
-                                        Nacimiento: {student.dob || 'N/A'} | 
-                                        Contraseña: <span className="text-yellow-400 font-mono font-bold bg-slate-800 px-1 rounded ml-1 select-all">{student.access_code || 'Sin código'}</span>
-                                    </span>
-                                </div>
-                                <div className="flex items-center gap-4 justify-end">
-                                     <div className="flex flex-col items-end">
-                                        <span className="text-xs text-slate-400">Calificación</span>
-                                        <input 
-                                            type="number" 
-                                            min="0" max="100"
-                                            className="w-16 bg-slate-900 border border-slate-600 rounded px-2 py-1 text-right text-white"
-                                            value={student.grade ?? ''}
-                                            onChange={(e) => actions.updateGrade(student.id, e.target.value ? parseInt(e.target.value) : null)}
-                                        />
-                                    </div>
-                                    <button onClick={() => actions.deleteStudent(student.id)} className="text-red-400 hover:text-red-300">
-                                        <RemoveIcon />
-                                    </button>
-                                </div>
-                            </div>
+                            <StudentEditorRow 
+                                key={student.id} 
+                                student={student} 
+                                onSaveBatch={actions.updateBatchGrades}
+                                onDelete={actions.deleteStudent}
+                            />
                         ))}
                         {classStudents.length === 0 && <p className="text-slate-500 text-center py-4">No hay alumnos en este salón.</p>}
                     </div>
@@ -859,7 +1008,7 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
                 case 'attendance':
                     return <AttendanceCalculator forcedStudentCount={classStudents.length} />;
                 case 'student':
-                    // RESTORED: Pass actions.updateGrade so the teacher can save.
+                    // Pass updateGrade wrapper that calls updateStudentPartialGrade
                     return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updateGrade} />;
                 case 'group':
                     return <GroupAverageCalculator enrolledStudents={classStudents} />;
@@ -1028,7 +1177,10 @@ const App: React.FC = () => {
         
         addStudent: createAsyncAction((s) => db.addStudent(s), setStudents),
         deleteStudent: createAsyncAction((id) => db.deleteStudent(id), setStudents),
-        updateGrade: createAsyncAction((id, g) => db.updateStudentGrade(id, g), setStudents)
+        
+        updateGrade: createAsyncAction((id, pIdx, g) => db.updateStudentPartialGrade(id, pIdx, g), setStudents),
+        // Nueva acción para batch update
+        updateBatchGrades: createAsyncAction((id, grades) => db.updateStudentGrades(id, grades), setStudents)
     };
 
     if (isLoading) {

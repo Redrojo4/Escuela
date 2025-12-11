@@ -46,7 +46,8 @@ export interface EnrolledStudent {
     id: string;
     name: string;
     classroomId: string;
-    grade: number | null;
+    grade: number | null; // Promedio Final
+    partialGrades: (number | null)[]; // Array de 5 calificaciones
     dob?: string;          // Fecha de nacimiento
     access_code?: string;  // Contraseña única generada
 }
