@@ -1198,7 +1198,13 @@ const App: React.FC = () => {
         <div className="min-h-screen bg-slate-900 text-slate-100 p-4 sm:p-6 lg:p-8">
             <div className="max-w-6xl mx-auto">
                 <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
-                    <div>
+                    <div className="flex flex-col items-start">
+                        {/* ⚠️ REEMPLAZAR ESTE SRC CON LA URL DE TU LOGO ⚠️ */}
+                        <img 
+                            src="/logo.png" 
+                            alt="Logo Secundaria 5" 
+                            className="h-24 w-24 mb-3 object-contain rounded-full bg-slate-800 p-1 shadow-lg border border-slate-700" 
+                        />
                         <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl flex items-center gap-2">
                              <HomeIcon />
                              Sistema Escolar
