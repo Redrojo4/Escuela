@@ -1200,7 +1200,7 @@ const App: React.FC = () => {
                 <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
                     <div className="flex flex-col items-start">
                         <img 
-                            src="../logo/L1.jpg" 
+                            src="logo/L1.jpg" 
                             alt="logo" 
                             className="h-24 w-24 mb-3 object-contain rounded-full bg-slate-800 p-1 shadow-lg border border-slate-700" 
                         />
