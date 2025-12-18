@@ -1,84 +1,25 @@
 
-
 import React, { useState, useEffect } from 'react';
-import { User, Classroom, EnrolledStudent, TabOption, AttendanceResult, GroupAverageResult, Criterion, Student, Role } from './types';
-import { db } from './database';
-
-
-// --- BASE COMPONENTS (from former components/ directory) ---
-
-interface CardProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-const Card: React.FC<CardProps> = ({ children, className = '' }) => {
-  return (
-    <div className={`bg-slate-800 p-6 rounded-lg shadow-lg ${className}`}>
-      {children}
-    </div>
-  );
-};
-
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label: string;
-}
-
-const Input = React.forwardRef<HTMLInputElement, InputProps>(({ label, id, type = 'text', ...props }, ref) => {
-  return (
-    <div>
-      <label htmlFor={id} className="block text-sm font-medium text-slate-400 mb-1">
-        {label}
-      </label>
-      <input
-        id={id}
-        ref={ref}
-        type={type}
-        className="w-full bg-slate-700 border border-slate-600 rounded-md py-2 px-3 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500"
-        {...props}
-      />
-    </div>
-  );
-});
-
-interface TabProps {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-  icon: React.ReactNode;
-}
-
-const Tab: React.FC<TabProps> = ({ label, isActive, onClick, icon }) => {
-  const baseClasses = "flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-900 focus:ring-sky-500";
-  const activeClasses = "bg-sky-600 text-white";
-  const inactiveClasses = "bg-slate-700 text-slate-300 hover:bg-slate-600";
-
-  return (
-    <button onClick={onClick} className={`${baseClasses} ${isActive ? activeClasses : inactiveClasses}`}>
-      {icon}
-      <span>{label}</span>
-    </button>
-  );
-};
-
+import { TabOption, AttendanceResult, GroupAverageResult, Criterion, Student, User, Role, Classroom, EnrolledStudent } from './types';
+import { Card } from './components/Card';
+import { Input } from './components/Input';
+import { Tab } from './components/Tab';
 
 // --- SVG ICON COMPONENTS (Using sprite from index.html) ---
-
-const AttendanceIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-attendance" /></svg>;
-const StudentIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-student" /></svg>;
-const GroupIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-group" /></svg>;
-const RemoveIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-remove" /></svg>;
-const LogoutIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-logout" /></svg>;
-const UserIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-user" /></svg>;
-const ClassIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-class" /></svg>;
-const KeyIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-key" /></svg>;
-const HomeIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-home" /></svg>;
-const LockIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-lock" /></svg>;
-const CheckIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-check" /></svg>;
+export const AttendanceIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-attendance" /></svg>;
+export const StudentIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-student" /></svg>;
+export const GroupIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-group" /></svg>;
+export const RemoveIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-remove" /></svg>;
+export const LogoutIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-logout" /></svg>;
+export const UserIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-user" /></svg>;
+export const ClassIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-class" /></svg>;
+export const KeyIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-key" /></svg>;
+export const HomeIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-home" /></svg>;
+export const LockIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-lock" /></svg>;
+export const CheckIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-check" /></svg>;
 const LandingStudentIcon = () => <svg className="h-12 w-12" fill="none" stroke="currentColor"><use href="#icon-landing-student" /></svg>;
 const LandingTeacherIcon = () => <svg className="h-12 w-12" fill="none" stroke="currentColor"><use href="#icon-landing-teacher" /></svg>;
 const CheckCircleIcon = () => <svg className="h-5 w-5" fill="currentColor"><use href="#icon-check-circle" /></svg>;
-
 
 // --- SHARED UI COMPONENTS ---
 
@@ -631,7 +572,7 @@ const GroupAverageCalculator: React.FC<GroupAverageCalculatorProps> = ({ enrolle
 
 // --- SCREENS / VIEWS ---
 
-const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: () => void }> = ({ onSelectStudent, onSelectTeacher }) => {
+export const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: () => void }> = ({ onSelectStudent, onSelectTeacher }) => {
     return (
         <div className="flex flex-col items-center justify-center pt-20 animate-fade-in">
             <h1 className="text-4xl font-extrabold text-white mb-2 text-center">Bienvenido</h1>
@@ -664,7 +605,7 @@ const LandingScreen: React.FC<{ onSelectStudent: () => void, onSelectTeacher: ()
     );
 };
 
-const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStudent[], onBack: () => void }> = ({ classrooms, students, onBack }) => {
+export const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStudent[], onBack: () => void }> = ({ classrooms, students, onBack }) => {
     const [selectedClassId, setSelectedClassId] = useState('');
     const [selectedStudentId, setSelectedStudentId] = useState('');
     const [accessCodeInput, setAccessCodeInput] = useState('');
@@ -788,7 +729,7 @@ const StudentPortal: React.FC<{ classrooms: Classroom[], students: EnrolledStude
     );
 }
 
-const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: string, onReset: () => void, onBack: () => void }> = ({ onLogin, error, onReset, onBack }) => {
+export const LoginScreen: React.FC<{ onLogin: (u: string, p: string) => void, error: string, onReset: () => void, onBack: () => void }> = ({ onLogin, error, onReset, onBack }) => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
@@ -837,7 +778,7 @@ interface AdminDashboardProps {
     actions: any;
 }
 
-const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, students, actions }) => {
+export const AdminDashboard: React.FC<AdminDashboardProps> = ({ users, classrooms, students, actions }) => {
     const [tab, setTab] = useState<'users' | 'classes'>('users');
     const [newUser, setNewUser] = useState({ name: '', username: '', password: '', role: 'docente' as Role });
     const [newClass, setNewClass] = useState({ name: '', teacherId: '' });
@@ -1034,7 +975,7 @@ interface TeacherDashboardProps {
     actions: any;
 }
 
-const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classrooms, students, actions }) => {
+export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classrooms, students, actions }) => {
     const [selectedClassId, setSelectedClassId] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<TabOption>('attendance');
 
@@ -1049,7 +990,7 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
                 case 'attendance':
                     return <AttendanceCalculator forcedStudentCount={classStudents.length} />;
                 case 'student':
-                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updatePartialGrade} />;
+                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updateGrade} />;
                 case 'group':
                     return <GroupAverageCalculator enrolledStudents={classStudents} />;
                 default:
@@ -1133,185 +1074,3 @@ const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser, classr
         </div>
     );
 }
-
-// --- MAIN APP LOGIC ---
-
-type ViewMode = 'landing' | 'login' | 'student';
-
-const App: React.FC = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [classrooms, setClassrooms] = useState<Classroom[]>([]);
-    const [students, setStudents] = useState<EnrolledStudent[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-
-    const [currentUser, setCurrentUser] = useState<User | null>(null);
-    const [viewMode, setViewMode] = useState<ViewMode>('landing');
-    const [loginError, setLoginError] = useState('');
-
-    // Load Data on Mount
-    useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const [u, c, s] = await Promise.all([
-                    db.getUsers(),
-                    db.getClassrooms(),
-                    db.getStudents()
-                ]);
-                setUsers(u);
-                setClassrooms(c);
-                setStudents(s);
-            } catch(e) {
-                console.error("Error loading DB", e);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadData();
-    }, []);
-
-    const handleLogin = (u: string, p: string) => {
-        const user = users.find(user => user.username === u && user.password === p);
-        if (user) {
-            setCurrentUser(user);
-            setLoginError('');
-        } else {
-            setLoginError('Credenciales incorrectas');
-        }
-    };
-
-    const handleLogout = () => {
-        setCurrentUser(null);
-        setLoginError('');
-        setViewMode('landing');
-    }
-
-    const handleResetData = async () => {
-        if(window.confirm("¿Estás seguro de restaurar los datos de prueba? Se borrarán todos los usuarios y salones creados.")){
-            setIsLoading(true);
-            await db.resetDatabase();
-            window.location.reload();
-        }
-    }
-
-    // Acciones Wrapper Asíncronas
-    const createAsyncAction = (action: (...args: any[]) => Promise<any>, updateState: (data: any) => void) => {
-        return async (...args: any[]) => {
-            setIsLoading(true);
-            try {
-                const newData = await action(...args);
-                updateState(newData);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-    };
-
-    const dbActions = {
-        addUser: createAsyncAction((u) => db.addUser(u), setUsers),
-        deleteUser: createAsyncAction((id) => db.deleteUser(id), setUsers),
-        resetPassword: createAsyncAction((id, pass) => db.updateUserPassword(id, pass), setUsers),
-        
-        addClassroom: createAsyncAction((c) => db.addClassroom(c), setClassrooms),
-        deleteClassroom: createAsyncAction((id) => db.deleteClassroom(id), setClassrooms),
-        
-        addStudent: createAsyncAction((s) => db.addStudent(s), setStudents),
-        deleteStudent: createAsyncAction((id) => db.deleteStudent(id), setStudents),
-        
-        // FIX: Renamed action from `updateGrade` to `updatePartialGrade` to be more specific
-        // and avoid potential naming collisions with legacy `updateStudentGrade` method in the database,
-        // which was likely causing a subtle type inference issue.
-        updatePartialGrade: createAsyncAction((id, pIdx, g) => db.updateStudentPartialGrade(id, pIdx, g), setStudents),
-        updateBatchGrades: createAsyncAction((id, grades) => db.updateStudentGrades(id, grades), setStudents)
-    };
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="text-center">
-                    <div className="w-16 h-16 border-4 border-sky-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-                    <h2 className="text-xl text-white font-bold">Cargando Sistema...</h2>
-                </div>
-            </div>
-        )
-    }
-
-    const renderContent = () => {
-        if (currentUser?.role === 'admin') {
-            return <AdminDashboard 
-                users={users} 
-                classrooms={classrooms} 
-                students={students} 
-                actions={dbActions} 
-            />;
-        }
-        if (currentUser?.role === 'docente') {
-            return <TeacherDashboard 
-                currentUser={currentUser}
-                classrooms={classrooms}
-                students={students}
-                actions={dbActions} 
-            />;
-        }
-        
-        switch(viewMode) {
-            case 'student':
-                return <StudentPortal 
-                    classrooms={classrooms}
-                    students={students}
-                    onBack={() => setViewMode('landing')}
-                />;
-            case 'login':
-                return <LoginScreen 
-                    onLogin={handleLogin} 
-                    error={loginError} 
-                    onReset={handleResetData} 
-                    onBack={() => setViewMode('landing')}
-                />;
-            case 'landing':
-            default:
-                return <LandingScreen 
-                    onSelectStudent={() => setViewMode('student')}
-                    onSelectTeacher={() => setViewMode('login')}
-                />;
-        }
-    }
-
-    return (
-        <div className="min-h-screen text-slate-100 p-4 sm:p-6 lg:p-8">
-            <div className="max-w-6xl mx-auto">
-                <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
-                    <div className="flex flex-col items-start">
-                        
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl flex items-center gap-2">
-                             <HomeIcon />
-                             Sistema Escolar
-                        </h1>
-                        <p className="mt-1 text-lg text-slate-400">Esc. Sec. Gral. Carolina Balboa Gojón</p>
-                    </div>
-                    {currentUser && (
-                        <div className="flex items-center gap-4">
-                            <div className="text-right hidden sm:block">
-                                <p className="font-bold text-white">{currentUser.name}</p>
-                                <p className="text-xs text-slate-400 uppercase">{currentUser.role}</p>
-                            </div>
-                            <button onClick={handleLogout} className="bg-slate-800 p-2 rounded-full hover:bg-slate-700 text-slate-400 hover:text-white transition-colors" title="Cerrar Sesión">
-                                <LogoutIcon />
-                            </button>
-                        </div>
-                    )}
-                </header>
-                
-                <main>
-                    {renderContent()}
-                </main>
-
-                 <footer className="text-center mt-12 text-slate-500 text-sm">
-                    <p>Creado por Pablo Soriano.</p>
-                </footer>
-            </div>
-        </div>
-    );
-};
-
-export default App;
