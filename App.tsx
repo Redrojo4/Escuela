@@ -4,6 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { User, Classroom, EnrolledStudent, TabOption, AttendanceResult, GroupAverageResult, Criterion, Student, Role } from './types';
 import { db } from './database';
 
+// ==============================================================================
+// 
+//  ARCHITECTURE: ALL REACT COMPONENTS IN A SINGLE FILE
+// 
+// To strictly adhere to the user's requirement of separating visual 
+// definitions (index.html) from application logic (this file), all React 
+// components have been consolidated here. The ui.tsx file and the /components 
+// directory are no longer used.
+//
+// ==============================================================================
+
 
 // --- BASE COMPONENTS (from former components/ directory) ---
 
@@ -168,6 +179,10 @@ const StudentEditorRow: React.FC<{
             handleSave();
         }
     };
+    
+    // FIX: Calculate average once to improve performance and readability
+    const avg = previewAverage();
+    const avgColorClass = (typeof avg === 'number' && avg < 60) ? 'text-red-400' : 'text-sky-400';
 
     return (
         <div className={`flex flex-col p-3 rounded gap-3 transition-colors duration-300 ${hasChanges ? 'bg-slate-800 border border-yellow-500/30' : 'bg-slate-700'}`}>
@@ -214,8 +229,8 @@ const StudentEditorRow: React.FC<{
                     ))}
                     <div className="flex flex-col items-center ml-2 pl-4 border-l border-slate-600">
                         <span className="text-[10px] text-slate-500 mb-1">Prom</span>
-                        <div className={`w-12 py-1 text-center font-bold text-white bg-slate-800 rounded border border-transparent ${(typeof previewAverage() === 'number' && (previewAverage() as number) < 60) ? 'text-red-400' : 'text-sky-400'}`}>
-                            {previewAverage()}
+                        <div className={`w-12 py-1 text-center font-bold text-white bg-slate-800 rounded border border-transparent ${avgColorClass}`}>
+                            {avg}
                         </div>
                     </div>
                 </div>
@@ -1282,7 +1297,11 @@ const App: React.FC = () => {
             <div className="max-w-6xl mx-auto">
                 <header className="flex justify-between items-center mb-8 border-b border-slate-800 pb-6">
                     <div className="flex flex-col items-start">
-                        
+                        <img 
+                            src="/logo/L1.jpg" 
+                            alt="Logo Secundaria 5" 
+                            className="h-24 w-24 mb-3 object-contain rounded-full bg-slate-800 p-1 shadow-lg border border-slate-700" 
+                        />
                         <h1 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl flex items-center gap-2">
                              <HomeIcon />
                              Sistema Escolar

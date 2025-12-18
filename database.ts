@@ -7,7 +7,8 @@ import { User, Classroom, EnrolledStudent } from './types';
 // Copia estos datos desde tu proyecto en Supabase (Settings -> API)
 // ==============================================================================
 const SUPABASE_URL = 'https://qnmpbmtpbhkjcapdhiik.supabase.co';
-const SUPABASE_KEY = 'process.env.SUPABASE_KEY';
+// FIX: Correctly access the environment variable instead of assigning a literal string.
+const SUPABASE_KEY = process.env.SUPABASE_KEY as string;
 
 // ------------------------------------------------------------------------------
 // 📋 REQUERIMIENTOS DE BASE DE DATOS (SQL EDITOR)
@@ -19,7 +20,7 @@ const SUPABASE_KEY = 'process.env.SUPABASE_KEY';
 // ------------------------------------------------------------------------------
 
 // Inicializamos el cliente. Si no hay claves configuradas, fallará elegantemente.
-const supabase = (SUPABASE_URL !== 'https://qnmpbmtpbhkjcapdhiik.supabase.co') 
+const supabase = (SUPABASE_URL !== 'https://qnmpbmtpbhkjcapdhiik.supabase.co' && SUPABASE_KEY) 
     ? createClient(SUPABASE_URL, SUPABASE_KEY) 
     : null;
 

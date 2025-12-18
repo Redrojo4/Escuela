@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { TabOption, AttendanceResult, GroupAverageResult, Criterion, Student, User, Role, Classroom, EnrolledStudent } from './types';
 import { Card } from './components/Card';
@@ -990,7 +991,8 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ currentUser,
                 case 'attendance':
                     return <AttendanceCalculator forcedStudentCount={classStudents.length} />;
                 case 'student':
-                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updateGrade} />;
+                    // FIX: Pass the correct renamed action 'updatePartialGrade' instead of the legacy 'updateGrade'.
+                    return <StudentAverageCalculator enrolledStudents={classStudents} onSaveGrade={actions.updatePartialGrade} />;
                 case 'group':
                     return <GroupAverageCalculator enrolledStudents={classStudents} />;
                 default:
