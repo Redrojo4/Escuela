@@ -20,7 +20,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { db } from './lib/db';
 import { User, Classroom, Student, UserRole } from './types';
-import logo from './assets/logo.png';
+import logo from './logo.png';
 
 // --- COMPONENTS ---
 const Card = ({ children, className = '' }: { children: React.ReactNode; className?: string }) => (
