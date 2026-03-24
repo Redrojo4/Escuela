@@ -76,9 +76,9 @@ const Landing = ({ onStudent, onTeacher }: any) => (
       animate={{ opacity: 1, y: 0 }}
       className="text-center space-y-4"
     >
-      <img src="/logo/L1.jpg" className="w-32 h-32 rounded-full mx-auto shadow-2xl border-4 border-sky-500/20" />
+      <img src="logo.png" className="w-32 h-32 rounded-full mx-auto shadow-2xl border-4 border-sky-500/20" />
       <h1 className="text-4xl font-black tracking-tight text-white">SISTEMA ESCOLAR</h1>
-      <p className="text-slate-400 font-medium">Escuela Secundaria Num. 5 "Gral. Ignacio Zaragoza"</p>
+      <p className="text-slate-400 font-medium">Escuela Secundaria Num. 5 "Gral. Carolina Balboa Gojon"</p>
     </motion.div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
