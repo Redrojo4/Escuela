@@ -83,7 +83,7 @@ const Landing = ({ onStudent, onTeacher }: any) => (
         className="w-50 h-50 rounded-full mx-auto shadow-2xl border-4 border-sky-500/20"
       />
       <h1 className="text-4xl font-black tracking-tight text-white">SISTEMA ESCOLAR</h1>
-      <p className="text-slate-400 font-medium">Escuela Secundaria Num. 5 "Gral. Carolina Balboa Gojon"</p>
+      <p className="text-slate-400 font-medium">Escuela Secundaria Num. 5 "Gral. Ignacio Zaragoza"</p>
     </motion.div>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full max-w-2xl">
@@ -727,8 +727,23 @@ const App = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-50 pb-20 md:pb-8">
       {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 py-4">
+      <header className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-md border-b border-slate-800/50 px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <div 
+            className="flex items-center gap-3 cursor-pointer group" 
+            onClick={() => { setUser(null); setView('landing'); }}
+          >
+            <img 
+              src={logo} 
+              className="h-10 w-10 rounded-full border border-sky-500/30 group-hover:border-sky-500/60 transition-all shadow-lg" 
+              referrerPolicy="no-referrer"
+            />
+            <div className="flex flex-col">
+              <span className="text-sm font-black tracking-tighter text-white group-hover:text-sky-400 transition-colors">SISTEMA ESCOLAR</span>
+              <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest">Secundaria 5</span>
+            </div>
+          </div>
+
           {user && (
             <div className="flex items-center gap-4">
               <div className="text-right hidden sm:block">
